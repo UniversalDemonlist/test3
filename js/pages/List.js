@@ -1,17 +1,17 @@
-import { store } from '../main.js';
-import { embed } from '../util.js';
-import { score } from '../score.js';
-import { fetchEditors, fetchList } from '../content.js';
+import { store } from "../main.js";
+import { embed } from "../util.js";
+import { score } from "../score.js";
+import { fetchEditors, fetchList } from "../content.js";
 
-import Spinner from '../components/Spinner.js';
-import LevelAuthors from '../components/List/LevelAuthors.js';
+import Spinner from "../components/Spinner.js";
+import LevelAuthors from "../components/List/LevelAuthors.js";
 
 const roleIconMap = {
-    owner: 'crown',
-    admin: 'user-gear',
-    helper: 'user-shield',
-    dev: 'code',
-    trial: 'user-lock',
+    owner: "crown",
+    admin: "user-gear",
+    helper: "user-shield",
+    dev: "code",
+    trial: "user-lock",
 };
 
 export default {
@@ -25,7 +25,7 @@ export default {
                 <table class="list" v-if="list">
                     <tr v-for="([level, err], i) in list">
                         <td class="rank">
-                            <p v-if="i + 1 <= 999" class="type-label-lg">#{{ i + 1 }}</p>
+                            <p v-if="i + 1 <= 50" class="type-label-lg">#{{ i + 1 }}</p>
                             <p v-else class="type-label-lg">Legacy</p>
                         </td>
                         <td class="level" :class="{ 'active': selected == i, 'error': !level }">
@@ -34,13 +34,13 @@ export default {
                             </button>
                         </td>
                     </tr>
-                </div>
+                </table>
             </div>
             <div class="level-container">
                 <div class="level" v-if="level">
                     <h1>{{ level.name }}</h1>
                     <LevelAuthors :author="level.author" :creators="level.creators" :verifier="level.verifier"></LevelAuthors>
-                    <iframe class="video" :src="embed(level.verification)" frameborder="0"></iframe>
+                    <iframe class="video" id="videoframe" :src="video" frameborder="0"></iframe>
                     <ul class="stats">
                         <li>
                             <div class="type-title-sm">Points when completed</div>
@@ -56,8 +56,9 @@ export default {
                         </li>
                     </ul>
                     <h2>Records</h2>
-                    <p v-if="selected + 1 <= 150"><strong>{{ level.percentToQualify }}%</strong> or better to qualify</p>
-                    <p v-else>100% or better to qualify</p>
+                    <p v-if="selected + 1 <= 30"><strong>{{ level.percentToQualify }}%</strong> or better to qualify</p>
+                    <p v-else-if="selected +1 <= 50"><strong>100%</strong> or better to qualify</p>
+                    <p v-else>This level does not accept new records.</p>
                     <table class="records">
                         <tr v-for="record in level.records" class="record">
                             <td class="percent">
@@ -85,7 +86,7 @@ export default {
                         <p class="error" v-for="error of errors">{{ error }}</p>
                     </div>
                     <div class="og">
-                        <p class="type-label-md">Original List by <a href="https://tsl.pages.dev/#/" target="_blank">TheShittyList</a></p>
+                        <p class="type-label-md">Website layout made by <a href="https://tsl.pages.dev/" target="_blank">TheShittyList</a></p>
                     </div>
                     <template v-if="editors">
                         <h3>List Editors</h3>
@@ -96,14 +97,7 @@ export default {
                                 <p v-else>{{ editor.name }}</p>
                             </li>
                         </ol>
-                    </template>               
-                    <p>
-                        Hi Aeon :D
-                    </p>
-                    <h3>How to Submit</h3>
-                    <p>
-                        Join the discord, and  use /record submit
-                    </p>
+                    </template>
                     <h3>Submission Requirements</h3>
                     <p>
                         Achieved the record without using hacks (however, FPS bypass is allowed, up to 360fps)
@@ -124,49 +118,10 @@ export default {
                         Do not use secret routes or bug routes
                     </p>
                     <p>
+                        Do not use easy modes, only a record of the unmodified level qualifies
+                    </p>
+                    <p>
                         Once a level falls onto the Legacy List, we accept records for it for 24 hours after it falls off, then afterwards we never accept records for said level
-                    </p>
-                    <p>
-                        Do not use Banned Hacks (<a href="https://docs.google.com/document/d/1AsQS0WH_OzPAzS7avtAB4e8rnYhoqWnFsV068Tcu5VU/edit?usp=sharing" target="_blank">Full List of Allowed / Banned hacks listed here</a>)
-                    </p>
-                     <p>
-                       <h3>Allowed Hacks / Modifications</h3>
-                    </p>
-                    <p>
-                       - LDMs / ULDMs
-                    </p>
-                    <p>
-                       - Show Hitboxes on Death
-                    </p>
-                    <p>
-                       - Cosmetic Hacks (Show / Hide Player Trail, RGB Icons, etc)
-                    </p>
-                    <p>
-                       - Speedhack above x1 Speed
-                    </p>
-                    <p>
-                       <h3>Banned Hacks</h3>
-                    </p>
-                    <p>
-                       - Noclip
-                    </p>
-                    <p>
-                       - Speedhack below x1 Speed
-                    </p>
-                    <p>
-                       - Show Hitboxes
-                    </p>
-                    <p>
-                       - Show Layout
-                    </p>
-                    <p>
-                       - Replay Bot / Macro
-                    </p>
-                    <p>
-                       - No Mirror
-                    </p>
-                    <p>
-                       - Hitbox Multiplier
                     </p>
                 </div>
             </div>
@@ -179,11 +134,22 @@ export default {
         selected: 0,
         errors: [],
         roleIconMap,
-        store,
+        store
     }),
     computed: {
         level() {
             return this.list[this.selected][0];
+        },
+        video() {
+            if (!this.level.showcase) {
+                return embed(this.level.verification);
+            }
+
+            return embed(
+                this.toggledShowcase
+                    ? this.level.showcase
+                    : this.level.verification
+            );
         },
     },
     async mounted() {
@@ -194,7 +160,7 @@ export default {
         // Error handling
         if (!this.list) {
             this.errors = [
-                'Failed to load list. Retry in a few minutes or notify list staff.',
+                "Failed to load list. Retry in a few minutes or notify list staff.",
             ];
         } else {
             this.errors.push(
@@ -202,10 +168,10 @@ export default {
                     .filter(([_, err]) => err)
                     .map(([_, err]) => {
                         return `Failed to load level. (${err}.json)`;
-                    }),
+                    })
             );
             if (!this.editors) {
-                this.errors.push('Failed to load list editors.');
+                this.errors.push("Failed to load list editors.");
             }
         }
 
