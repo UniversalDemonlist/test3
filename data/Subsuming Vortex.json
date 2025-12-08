@@ -1,0 +1,18 @@
+{
+    "id": 127997391,
+    "name": "Subsuming Vortex",
+    "author": "Septagon",
+    "creators": ["Septagon"],
+    "verifier": "Cursed",
+    "verification": "https://www.youtube.com/watch?v=0eYG1ogJpIQ",
+    "percentToQualify": 49,
+    "password": "Not Copyable",
+    "records": [
+        {
+            "user": "PowerGreen",
+            "link": "https://www.youtube.com/watch?v=CF-h2UotRYY",
+            "percent": 100,
+            "hz": 60
+        }
+    ]
+}

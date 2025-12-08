@@ -1,11 +1,30 @@
 {
-    "id": 85133223,
+    "id": 116732736,
     "name": "poocubed",
-    "author": "btLisp",
-    "creators": ["btLisp, Aespha, Faraox, Aranda, TypicalGMD, ph0bic, Earthum"],
-    "verifier": "Kyass",
-    "verification": "https://www.youtube.com/watch?v=fzL31vai1ms?t=95",
-    "percentToQualify": 100,
-    "password": "688255",
-    "records": []
+    "author": "Liisp",
+    "creators": ["Liisp"],
+    "verifier": "Kyasshukodo",
+    "verification": "https://www.youtube.com/watch?v=fzL31vai1ms",
+    "percentToQualify": 72,
+    "password": "Not Copyable",
+    "records": [
+         {
+            "user": "Zoink",
+            "link": "https://www.youtube.com/watch?v=QuiGxP37zf8",
+            "percent": 100,
+            "hz": 360
+        },
+        {
+            "user": "Trick",
+            "link": "https://www.youtube.com/watch?v=dbuOPaOhVPo",
+            "percent": 100,
+            "hz": 360
+        },
+       {
+            "user": "skzyl",
+            "link": "https://www.youtube.com/watch?v=Le4QsysR_ss",
+            "percent": 100,
+            "hz": 360
+        }
+    ]
 }
