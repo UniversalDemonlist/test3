@@ -1,0 +1,18 @@
+{
+    "id": 129416311,
+    "name": "Deimos",
+    "author": "Dashio",
+    "creators": ["Das"],
+    "verifier": "PowerGreen",
+    "verification": "https://www.youtube.com/watch?v=fZ_MhbA-8w0",
+    "percentToQualify": 57,
+    "password": "Not Copyable",
+    "records": [
+        {
+            "user": "Not beaten yet",
+            "link": "https://www.youtube.com/watch?v=wZwCXjVdqz0",
+            "percent": 1,
+            "hz": 360
+        }
+    ]
+}
