@@ -1,0 +1,18 @@
+{
+    "id": 31325851,
+    "name": "Exasperation",
+    "author": "Thycket",
+    "creators": ["Thycket"],
+    "verifier": "Zoink",
+    "verification": "https://youtu.be/v9rpMj2iJb4",
+    "percentToQualify": 57,
+    "password": "Not Copyable",
+    "records": [
+        {
+            "user": "Not beaten yet",
+            "link": "https://www.youtube.com/watch?v=wZwCXjVdqz0",
+            "percent": 1,
+            "hz": 360
+        }
+    ]
+}
