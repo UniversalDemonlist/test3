@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=1024" />
-        <title>All Extreme Demon List</title>
-        <link rel="icon" href="/list_icon.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap"
-            rel="stylesheet"
-        />
-        <link rel="stylesheet" type="text/css" href="/css/reset.css" />
-        <link rel="stylesheet" type="text/css" href="/css/typography.css" />
-        <link rel="stylesheet" type="text/css" href="/css/main.css" />
-        <link rel="stylesheet" type="text/css" href="/css/pages/list.css" />
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="/css/pages/leaderboard.css"
-        />
-        <link rel="stylesheet" type="text/css" href="/css/pages/roulette.css" />
-        <link rel="stylesheet" type="text/css" href="/css/components/nav.css" />
-        <link rel="stylesheet" type="text/css" href="/css/components/btn.css" />
-        <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
-        <script src="https://unpkg.com/vue-router@4.0.14/dist/vue-router.global.prod.js"></script>
-        <script type="module" src="/js/main.js"></script>
-    </head>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1024" />
+    <title>All Extreme Demon List</title>
+
+    <!-- Icon -->
+    <link rel="icon" href="/list_icon.png" />
+
+    <!-- Montserrat 600 everywhere -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+
+    <!-- Pointercrate base CSS -->
+    <link rel="stylesheet" href="https://pointercrate.com/static/css/normalize.css">
+    <link rel="stylesheet" href="https://pointercrate.com/static/css/fonts.css">
+    <link rel="stylesheet" href="https://pointercrate.com/static/css/pointercrate.css">
+
+    <!-- Force Montserrat 600 globally -->
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif !important;
+            font-weight: 600 !important;
+        }
+    </style>
+
+    <!-- Vue + Router -->
+    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-router@4.0.14/dist/vue-router.global.prod.js"></script>
+
+    <!-- Your JS -->
+    <script type="module" src="/js/main.js"></script>
+</head>
+
     <body id="app">
         <header :class="{ dark: store.dark }">
             <div class="logo">
