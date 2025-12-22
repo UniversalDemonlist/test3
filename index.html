@@ -2,7 +2,9 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Demonlist +</title>
+  <title>Demonlist</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -13,11 +15,12 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="demonlist">Demonlist</button>
     <button class="tab-btn" data-tab="leaderboard">Leaderboard</button>
+    <button class="tab-btn" data-tab="moderators">Moderators</button>
   </div>
 
   <!-- Demonlist tab -->
   <div id="demonlist" class="tab-content active">
-    <h1>Demonlist +</h1>
+    <h1>Demonlist</h1>
     <div id="demon-container"></div>
   </div>
 
@@ -27,7 +30,13 @@
     <div id="leaderboard-container"></div>
   </div>
 
-  <!-- Player profile (no button, opened by clicking a player) -->
+  <!-- Moderators tab -->
+  <div id="moderators" class="tab-content">
+    <h1>Moderators</h1>
+    <div id="moderators-container"></div>
+  </div>
+
+  <!-- Player profile (opened by clicking a player in leaderboard) -->
   <div id="profile" class="tab-content">
     <h1>Player profile</h1>
     <div id="profile-container"></div>

@@ -1,4 +1,22 @@
 /* ---------------------------------------------------
+   MOBILE DETECTION
+--------------------------------------------------- */
+function detectMobile() {
+  const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+
+  if (isMobile) {
+    document.body.classList.add("mobile");
+  } else {
+    document.body.classList.remove("mobile");
+  }
+}
+
+detectMobile();
+window.addEventListener("resize", detectMobile);
+
+/* ---------------------------------------------------
    TAB SWITCHING
 --------------------------------------------------- */
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -17,36 +35,30 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 let globalDemons = []; // used for leaderboard + profiles
 
 /* ---------------------------------------------------
-   LOAD DEMONLIST
+   LOAD ALL DEMONS IN PARALLEL (FAST)
 --------------------------------------------------- */
 async function loadDemonList() {
   const list = await fetch("data/list.json").then(r => r.json());
   const container = document.getElementById("demon-container");
 
-  for (let i = 0; i < list.length; i++) {
-    const id = list[i];
+  const demonFiles = await Promise.all(
+    list.map(id =>
+      fetch(`data/demons/${id}.json`)
+        .then(r => (r.ok ? r.json() : null))
+        .catch(() => null)
+    )
+  );
 
-    try {
-      const response = await fetch(`data/demons/${id}.json`);
-      if (!response.ok) {
-        console.error(`❌ FILE NOT FOUND: data/demons/${id}.json`);
-        continue;
-      }
+  globalDemons = demonFiles
+    .map((d, i) => (d ? { ...d, position: i + 1 } : null))
+    .filter(Boolean);
 
-      const demon = await response.json();
-      demon.position = i + 1;
+  globalDemons.forEach(demon => {
+    const card = createDemonCard(demon);
+    container.appendChild(card);
+  });
 
-      globalDemons.push(demon);
-
-      const card = createDemonCard(demon);
-      container.appendChild(card);
-
-    } catch (err) {
-      console.error(`❌ ERROR LOADING DEMON: ${id}`, err);
-    }
-  }
-
-  loadLeaderboard(); // build leaderboard after demons load
+  loadLeaderboard();
 }
 
 /* ---------------------------------------------------
@@ -73,7 +85,6 @@ function getYoutubeThumbnail(url) {
 
 /* ---------------------------------------------------
    DEMON CARD BUILDER
-   (NO VERIFICATION ENTRY IN RECORDS)
 --------------------------------------------------- */
 function createDemonCard(demon) {
   const card = document.createElement("div");
@@ -89,16 +100,22 @@ function createDemonCard(demon) {
     ? demon.creators.join(", ")
     : (demon.creators || "Unknown");
 
+  const demonScore = demon.position <= 75
+    ? (150 / Math.sqrt(demon.position))
+    : 0;
+
+  const positionLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
+
   info.innerHTML = `
-    <h2>#${demon.position} — ${demon.name}</h2>
+    <h2>${positionLabel} — ${demon.name}</h2>
     <p><strong>Author:</strong> ${demon.author}</p>
     <p><strong>Creators:</strong> ${creatorsText}</p>
     <p><strong>Verifier:</strong> ${demon.verifier}</p>
     <p><strong>Percent to Qualify:</strong> ${demon.percentToQualify}%</p>
+    <p><strong>Score Value:</strong> ${demonScore.toFixed(2)}</p>
     ${demon.verification ? `<a href="${demon.verification}" target="_blank">Watch verification</a>` : ""}
   `;
 
-  // Records dropdown (ONLY records, NOT verification)
   const btn = document.createElement("button");
   btn.className = "dropdown-btn";
   btn.textContent = "Show Records";
@@ -136,28 +153,14 @@ function createDemonCard(demon) {
 
 /* ---------------------------------------------------
    LEADERBOARD SYSTEM
-   - Score = 150 / sqrt(position)
-   - Levels past rank 75 give 0 points
-   - Verifier gets full points
-   - Records give percent-based points
-   - Verification appears ONLY in player profile
 --------------------------------------------------- */
 function loadLeaderboard() {
   const players = {};
 
   globalDemons.forEach(demon => {
     const pos = demon.position;
+    const demonScore = pos <= 75 ? 150 / Math.sqrt(pos) : 0;
 
-    // Rank > 75 gives NO points
-    let demonScore = 0;
-    if (pos <= 75) {
-      demonScore = 150 / Math.sqrt(pos);
-    }
-
-    /* ------------------------------
-       1. Verifier full points
-       (ONLY in player profile)
-    ------------------------------ */
     if (demon.verifier) {
       const name = demon.verifier;
 
@@ -176,9 +179,6 @@ function loadLeaderboard() {
       });
     }
 
-    /* ------------------------------
-       2. Record holders
-    ------------------------------ */
     if (Array.isArray(demon.records)) {
       demon.records.forEach(rec => {
         const playerName = rec.user;
@@ -201,9 +201,6 @@ function loadLeaderboard() {
     }
   });
 
-  /* ------------------------------
-     Sort players by total score
-  ------------------------------ */
   const sorted = Object.entries(players)
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.score - a.score);
@@ -215,14 +212,13 @@ function loadLeaderboard() {
     const row = document.createElement("div");
     row.className = "leaderboard-row";
     row.innerHTML = `
-      <span>#${i + 1}</span>
+      <span>${i + 1}</span>
       <span class="clickable-player" data-player="${p.name}">${p.name}</span>
       <span>${p.score.toFixed(2)}</span>
     `;
     container.appendChild(row);
   });
 
-  // Make players clickable → open profile
   document.querySelectorAll(".clickable-player").forEach(el => {
     el.addEventListener("click", () => {
       const name = el.dataset.player;
@@ -235,11 +231,9 @@ function loadLeaderboard() {
    PLAYER PROFILE VIEW
 --------------------------------------------------- */
 function showPlayerProfile(name, data) {
-  // Hide all tabs
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
 
-  // Show profile tab
   document.getElementById("profile").classList.add("active");
 
   const container = document.getElementById("profile-container");
@@ -249,16 +243,19 @@ function showPlayerProfile(name, data) {
     <h3>Records:</h3>
   `;
 
-  // Sort records by demon position (harder first)
   data.records.sort((a, b) => a.position - b.position);
 
   data.records.forEach(r => {
     const div = document.createElement("div");
     div.className = "leaderboard-row";
+
+    const posLabel = r.position > 75 ? "Legacy" : "#" + r.position;
+    const typeLabel = r.type === "Verification" ? "(Verification)" : "";
+
     div.innerHTML = `
-      <span>#${r.position}</span>
+      <span>${posLabel}</span>
       <span>${r.demon}</span>
-      <span>${r.percent}% ${r.type === "Verification" ? "(Verification)" : ""}</span>
+      <span>${r.percent}% ${typeLabel}</span>
       ${r.link ? `<a href="${r.link}" target="_blank">Video</a>` : ""}
     `;
     container.appendChild(div);
@@ -266,6 +263,32 @@ function showPlayerProfile(name, data) {
 }
 
 /* ---------------------------------------------------
+   MODERATORS TAB
+--------------------------------------------------- */
+function loadModerators() {
+  const container = document.getElementById("moderators-container");
+
+  const mods = [
+    { name: "UniverDemonlist", role: "Super Moderator" },
+    { name: "PowerGreen", role: "Moderator" },
+    { name: "Prometheus", role: "Developer" }
+  ];
+
+  mods.forEach(mod => {
+    const row = document.createElement("div");
+    row.className = "moderator-row";
+
+    row.innerHTML = `
+      <span>${mod.name}</span>
+      <span class="moderator-role">${mod.role}</span>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+/* ---------------------------------------------------
    START
 --------------------------------------------------- */
 loadDemonList();
+loadModerators();
