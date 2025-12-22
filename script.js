@@ -100,8 +100,9 @@ function createDemonCard(demon) {
     ? demon.creators.join(", ")
     : (demon.creators || "Unknown");
 
+  /* UPDATED SCORE FORMULA: 200 instead of 150 */
   const demonScore = demon.position <= 75
-    ? (150 / Math.sqrt(demon.position))
+    ? (200 / Math.sqrt(demon.position))
     : 0;
 
   const positionLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
@@ -159,7 +160,9 @@ function loadLeaderboard() {
 
   globalDemons.forEach(demon => {
     const pos = demon.position;
-    const demonScore = pos <= 75 ? 150 / Math.sqrt(pos) : 0;
+
+    /* UPDATED SCORE FORMULA: 200 instead of 150 */
+    const demonScore = pos <= 75 ? 200 / Math.sqrt(pos) : 0;
 
     if (demon.verifier) {
       const name = demon.verifier;
