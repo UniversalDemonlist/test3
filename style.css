@@ -58,7 +58,7 @@ h1, h2, h3 {
 }
 
 /* ---------------------------------------------------
-   DEMONLIST CONTAINER — NARROW, CENTERED, ONE PER ROW
+   DEMONLIST CONTAINER — LONG, CENTERED, ONE PER ROW
 --------------------------------------------------- */
 #demon-container {
   display: flex;
@@ -66,12 +66,12 @@ h1, h2, h3 {
   gap: 20px;
 
   /* Pointercrate-style narrow centered layout */
-  max-width: 750px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 /* ---------------------------------------------------
-   DEMON CARD — HORIZONTAL LAYOUT
+   DEMON CARD — LONG HORIZONTAL BAR
 --------------------------------------------------- */
 .demon-card {
   display: flex;
@@ -84,9 +84,9 @@ h1, h2, h3 {
   overflow: hidden;
 
   width: 100%;
-  min-height: 180px;
-
+  min-height: 200px; /* EXTRA LONG */
   box-shadow: 0 0 15px rgba(0,0,0,0.4);
+
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -97,7 +97,7 @@ h1, h2, h3 {
 
 /* Thumbnail on the LEFT */
 .demon-card img {
-  width: 260px;
+  width: 320px;      /* EXTRA LONG thumbnail */
   height: 100%;
   object-fit: cover;
 }
@@ -105,20 +105,22 @@ h1, h2, h3 {
 /* Demon info on the RIGHT */
 .demon-info {
   flex: 1;
-  padding: 15px 20px;
+  padding: 20px 25px; /* More padding for long layout */
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .demon-info p {
-  margin: 6px 0;
+  margin: 8px 0;
   color: #cfcfcf;
+  font-size: 16px;
 }
 
-/* Dropdown button inside horizontal layout */
+/* Dropdown button */
 .dropdown-btn {
-  margin-top: 10px;
+  margin-top: 12px;
+  padding: 8px 14px;
   align-self: flex-start;
 }
 
