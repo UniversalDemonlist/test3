@@ -94,8 +94,9 @@ function createDemonCard(demon) {
     ? demon.creators.join(", ")
     : (demon.creators || "Unknown");
 
+  // UPDATED: 350-point formula
   const demonScore = demon.position <= 75
-    ? (200 / Math.sqrt(demon.position))
+    ? (350 / Math.sqrt(demon.position))
     : 0;
 
   const positionLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
@@ -159,16 +160,14 @@ function createDemonCard(demon) {
    FULL DEMON PAGE
 --------------------------------------------------- */
 function openDemonPage(demon) {
-  // Hide all tab contents
   document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-  // Show demon page
   document.getElementById("demon-page").classList.add("active");
 
   const container = document.getElementById("demon-page-container");
   const positionLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
 
   const demonScore = demon.position <= 75
-    ? (200 / Math.sqrt(demon.position))
+    ? (350 / Math.sqrt(demon.position))
     : 0;
 
   let recordsHTML = "";
@@ -226,10 +225,10 @@ function loadLeaderboard() {
 
   globalDemons.forEach(demon => {
     const pos = demon.position;
-    const demonScore = pos <= 75 ? 200 / Math.sqrt(pos) : 0;
+    const demonScore = pos <= 75 ? 350 / Math.sqrt(pos) : 0;
 
-    // Verifier full points
-    if (demon.verifier) {
+    // Verifier full points (skip fake names)
+    if (demon.verifier && demon.verifier !== "Not beaten yet") {
       const name = demon.verifier;
 
       if (!players[name]) {
@@ -250,6 +249,10 @@ function loadLeaderboard() {
     // Normal records
     if (Array.isArray(demon.records)) {
       demon.records.forEach(rec => {
+
+        // EXCLUDE "Not beaten yet"
+        if (rec.user === "Not beaten yet") return;
+
         const playerName = rec.user;
         const scoreGain = demonScore * (rec.percent / 100);
 
