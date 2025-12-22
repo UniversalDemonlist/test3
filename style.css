@@ -1,0 +1,129 @@
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: #111;
+  color: #fff;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+#demon-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.demon-card {
+  display: flex;
+  gap: 20px;
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 10px;
+  align-items: center;
+  border: 1px solid #333;
+}
+
+.demon-card img {
+  width: 160px;
+  border-radius: 8px;
+}
+
+.demon-info h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.demon-info p {
+  margin: 4px 0;
+  font-weight: 300;
+}
+
+a {
+  color: #4da3ff;
+  font-weight: 500;
+}
+
+/* Dropdown */
+.dropdown-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #333;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dropdown-btn:hover {
+  background: #444;
+}
+
+.record-dropdown {
+  margin-top: 10px;
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  display: none;
+}
+
+.record-dropdown p {
+  margin: 5px 0;
+}
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: #222;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.tab-btn.active {
+  background: #4da3ff;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Leaderboard & profile rows */
+.leaderboard-row {
+  display: flex;
+  justify-content: space-between;
+  background: #1a1a1a;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  gap: 10px;
+}
+
+.leaderboard-row span,
+.leaderboard-row a {
+  font-size: 14px;
+}
+
+/* Clickable player name in leaderboard */
+.clickable-player {
+  cursor: pointer;
+  color: #4da3ff;
+  text-decoration: underline;
+}

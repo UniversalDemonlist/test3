@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Demonlist +</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="demonlist">Demonlist</button>
+    <button class="tab-btn" data-tab="leaderboard">Leaderboard</button>
+  </div>
+
+  <!-- Demonlist tab -->
+  <div id="demonlist" class="tab-content active">
+    <h1>Demonlist +</h1>
+    <div id="demon-container"></div>
+  </div>
+
+  <!-- Leaderboard tab -->
+  <div id="leaderboard" class="tab-content">
+    <h1>Leaderboard</h1>
+    <div id="leaderboard-container"></div>
+  </div>
+
+  <!-- Player profile (no button, opened by clicking a player) -->
+  <div id="profile" class="tab-content">
+    <h1>Player profile</h1>
+    <div id="profile-container"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
