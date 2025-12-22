@@ -6,6 +6,7 @@ body {
   background: #111;
   color: #fff;
   padding: 20px;
+  margin: 0;
 }
 
 h1 {
@@ -14,83 +15,8 @@ h1 {
   margin-bottom: 30px;
 }
 
-/* ---------------------------------------------------
-   DEMONLIST CONTAINER
---------------------------------------------------- */
-#demon-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 900px;   /* keeps layout clean */
-  margin: 0 auto;     /* centers the list */
-}
-
-/* ---------------------------------------------------
-   DEMON CARD (your exact style)
---------------------------------------------------- */
-.demon-card {
-  display: flex;
-  gap: 20px;
-  background: #1a1a1a;
-  padding: 15px;
-  border-radius: 10px;
-  align-items: center;
-  border: 1px solid #333;
-}
-
-/* Thumbnail on the left */
-.demon-card img {
-  width: 160px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* Demon info on the right */
-.demon-info h2 {
-  margin: 0;
-  font-size: 1.4rem;
+h2, h3 {
   font-weight: 600;
-}
-
-.demon-info p {
-  margin: 4px 0;
-  font-weight: 300;
-}
-
-a {
-  color: #4da3ff;
-  font-weight: 500;
-}
-
-/* ---------------------------------------------------
-   DROPDOWN
---------------------------------------------------- */
-.dropdown-btn {
-  margin-top: 10px;
-  padding: 6px 12px;
-  background: #333;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.dropdown-btn:hover {
-  background: #444;
-}
-
-.record-dropdown {
-  margin-top: 10px;
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  display: none;
-}
-
-.record-dropdown p {
-  margin: 5px 0;
 }
 
 /* ---------------------------------------------------
@@ -125,8 +51,91 @@ a {
 }
 
 /* ---------------------------------------------------
-   LEADERBOARD & PROFILE ROWS
+   DEMONLIST
 --------------------------------------------------- */
+#demon-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.demon-card {
+  display: flex;
+  gap: 20px;
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 10px;
+  align-items: center;
+  border: 1px solid #333;
+}
+
+.demon-card img {
+  width: 160px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.demon-info h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.demon-info p {
+  margin: 4px 0;
+  font-weight: 300;
+}
+
+.demon-info a {
+  color: #4da3ff;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.demon-info a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons / dropdowns */
+.dropdown-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #333;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dropdown-btn:hover {
+  background: #444;
+}
+
+.record-dropdown {
+  margin-top: 10px;
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  display: none;
+}
+
+.record-dropdown p {
+  margin: 5px 0;
+}
+
+/* ---------------------------------------------------
+   LEADERBOARD & PROFILE
+--------------------------------------------------- */
+#leaderboard-container,
+#profile-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .leaderboard-row {
   display: flex;
   justify-content: space-between;
@@ -143,8 +152,63 @@ a {
   font-size: 14px;
 }
 
-/* Clickable player name */
 .clickable-player {
   cursor: pointer;
   color: #4da3ff;
+}
+
+/* ---------------------------------------------------
+   MODERATORS
+--------------------------------------------------- */
+#moderators-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.moderator-row {
+  display: flex;
+  justify-content: space-between;
+  background: #1a1a1a;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  border: 1px solid #333;
+}
+
+.moderator-role {
+  color: #4da3ff;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------
+   DEMON PAGE
+--------------------------------------------------- */
+#demon-page-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+#demon-page-container h1 {
+  text-align: left;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+#demon-page-container p {
+  margin: 4px 0;
+}
+
+#demon-page-container iframe {
+  margin-top: 10px;
+  max-width: 100%;
+}
+
+#demon-page-container h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* Back button */
+.back-btn {
+  margin-bottom: 15px;
 }

@@ -1,22 +1,4 @@
 /* ---------------------------------------------------
-   MOBILE DETECTION
---------------------------------------------------- */
-function detectMobile() {
-  const isMobile =
-    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) ||
-    window.innerWidth < 768;
-
-  if (isMobile) {
-    document.body.classList.add("mobile");
-  } else {
-    document.body.classList.remove("mobile");
-  }
-}
-
-detectMobile();
-window.addEventListener("resize", detectMobile);
-
-/* ---------------------------------------------------
    TAB SWITCHING
 --------------------------------------------------- */
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -32,10 +14,10 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 /* ---------------------------------------------------
    GLOBAL DEMON STORAGE
 --------------------------------------------------- */
-let globalDemons = []; // used for leaderboard + profiles
+let globalDemons = []; // used for leaderboard + demon pages + profiles
 
 /* ---------------------------------------------------
-   LOAD ALL DEMONS IN PARALLEL (FAST)
+   LOAD ALL DEMONS IN PARALLEL
 --------------------------------------------------- */
 async function loadDemonList() {
   const list = await fetch("data/list.json").then(r => r.json());
@@ -62,7 +44,7 @@ async function loadDemonList() {
 }
 
 /* ---------------------------------------------------
-   FIXED YOUTUBE THUMBNAIL (youtube.com + youtu.be)
+   YOUTUBE THUMBNAIL & ID
 --------------------------------------------------- */
 function getYoutubeThumbnail(url) {
   if (!url || typeof url !== "string") return null;
@@ -83,6 +65,18 @@ function getYoutubeThumbnail(url) {
   }
 }
 
+function extractVideoID(url) {
+  try {
+    if (url.includes("youtube.com/watch")) {
+      return new URL(url).searchParams.get("v");
+    }
+    if (url.includes("youtu.be/")) {
+      return url.split("youtu.be/")[1].split("?")[0];
+    }
+  } catch {}
+  return null;
+}
+
 /* ---------------------------------------------------
    DEMON CARD BUILDER
 --------------------------------------------------- */
@@ -100,7 +94,6 @@ function createDemonCard(demon) {
     ? demon.creators.join(", ")
     : (demon.creators || "Unknown");
 
-  /* UPDATED SCORE FORMULA: 200 instead of 150 */
   const demonScore = demon.position <= 75
     ? (200 / Math.sqrt(demon.position))
     : 0;
@@ -117,6 +110,16 @@ function createDemonCard(demon) {
     ${demon.verification ? `<a href="${demon.verification}" target="_blank">Watch verification</a>` : ""}
   `;
 
+  // View Demon Page button
+  const viewBtn = document.createElement("button");
+  viewBtn.className = "dropdown-btn";
+  viewBtn.textContent = "View Demon Page";
+  viewBtn.addEventListener("click", () => {
+    openDemonPage(demon);
+  });
+  info.appendChild(viewBtn);
+
+  // Records dropdown
   const btn = document.createElement("button");
   btn.className = "dropdown-btn";
   btn.textContent = "Show Records";
@@ -153,6 +156,69 @@ function createDemonCard(demon) {
 }
 
 /* ---------------------------------------------------
+   FULL DEMON PAGE
+--------------------------------------------------- */
+function openDemonPage(demon) {
+  // Hide all tab contents
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+  // Show demon page
+  document.getElementById("demon-page").classList.add("active");
+
+  const container = document.getElementById("demon-page-container");
+  const positionLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
+
+  const demonScore = demon.position <= 75
+    ? (200 / Math.sqrt(demon.position))
+    : 0;
+
+  let recordsHTML = "";
+
+  if (Array.isArray(demon.records) && demon.records.length > 0) {
+    demon.records.forEach(r => {
+      recordsHTML += `
+        <div class="leaderboard-row">
+          <span>${r.user}</span>
+          <span>${r.percent}%</span>
+          <span>${r.hz}hz</span>
+          ${r.link ? `<a href="${r.link}" target="_blank">Video</a>` : ""}
+        </div>
+      `;
+    });
+  } else {
+    recordsHTML = "<p>No records yet.</p>";
+  }
+
+  const videoId = extractVideoID(demon.verification);
+
+  container.innerHTML = `
+    <button class="dropdown-btn back-btn" onclick="goBackToList()">← Back to List</button>
+
+    <h1>${positionLabel} — ${demon.name}</h1>
+
+    <p><strong>Author:</strong> ${demon.author}</p>
+    <p><strong>Creators:</strong> ${Array.isArray(demon.creators) ? demon.creators.join(", ") : (demon.creators || "Unknown")}</p>
+    <p><strong>Verifier:</strong> ${demon.verifier}</p>
+    <p><strong>Percent to Qualify:</strong> ${demon.percentToQualify}%</p>
+    <p><strong>Score Value:</strong> ${demonScore.toFixed(2)}</p>
+
+    <h2>Verification</h2>
+    ${
+      videoId
+        ? `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`
+        : "<p>No verification video.</p>"
+    }
+
+    <h2>Records</h2>
+    ${recordsHTML}
+  `;
+}
+
+function goBackToList() {
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+  document.getElementById("demonlist").classList.add("active");
+}
+
+/* ---------------------------------------------------
    LEADERBOARD SYSTEM
 --------------------------------------------------- */
 function loadLeaderboard() {
@@ -160,10 +226,9 @@ function loadLeaderboard() {
 
   globalDemons.forEach(demon => {
     const pos = demon.position;
-
-    /* UPDATED SCORE FORMULA: 200 instead of 150 */
     const demonScore = pos <= 75 ? 200 / Math.sqrt(pos) : 0;
 
+    // Verifier full points
     if (demon.verifier) {
       const name = demon.verifier;
 
@@ -182,6 +247,7 @@ function loadLeaderboard() {
       });
     }
 
+    // Normal records
     if (Array.isArray(demon.records)) {
       demon.records.forEach(rec => {
         const playerName = rec.user;
@@ -225,7 +291,7 @@ function loadLeaderboard() {
   document.querySelectorAll(".clickable-player").forEach(el => {
     el.addEventListener("click", () => {
       const name = el.dataset.player;
-      showPlayerProfile(name, players[name]);
+      showPlayerProfile(name, sorted.find(p => p.name === name));
     });
   });
 }
@@ -233,22 +299,22 @@ function loadLeaderboard() {
 /* ---------------------------------------------------
    PLAYER PROFILE VIEW
 --------------------------------------------------- */
-function showPlayerProfile(name, data) {
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+function showPlayerProfile(name, playerData) {
+  if (!playerData) return;
 
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
   document.getElementById("profile").classList.add("active");
 
   const container = document.getElementById("profile-container");
   container.innerHTML = `
     <h2>${name}</h2>
-    <p><strong>Total score:</strong> ${data.score.toFixed(2)}</p>
+    <p><strong>Total score:</strong> ${playerData.score.toFixed(2)}</p>
     <h3>Records:</h3>
   `;
 
-  data.records.sort((a, b) => a.position - b.position);
+  const records = [...playerData.records].sort((a, b) => a.position - b.position);
 
-  data.records.forEach(r => {
+  records.forEach(r => {
     const div = document.createElement("div");
     div.className = "leaderboard-row";
 
