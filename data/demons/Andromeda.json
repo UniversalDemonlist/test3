@@ -33,6 +33,12 @@
             "link": "https://www.youtube.com/watch?v=tXPgH_kaGvI",
             "percent": 100,
             "hz": 60
-        }        
+        },
+        {
+            "user": "wPopoff",
+            "link": "https://www.youtube.com/watch?v=hv6-C_2VWI0",
+            "percent": 100,
+            "hz": 360
+        }
     ]
 }
