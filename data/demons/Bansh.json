@@ -1,0 +1,18 @@
+{
+    "id": 0,
+    "name": "Banshee",
+    "author": "Nikrodox",
+    "creators": ["Nikrodox"],
+    "verifier": "spcreat",
+    "verification": "https://youtu.be/h14lmGH31_M",
+    "percentToQualify": 57,
+    "password": "Not Copyable",
+    "records": [
+        {
+            "user": "Not beaten yet",
+            "link": "https://www.youtube.com/watch?v=wZwCXjVdqz0",
+            "percent": 1,
+            "hz": 360
+        }
+    ]
+}
