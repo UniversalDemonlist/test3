@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- IMPORTANT: your file is named style.css -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,6 +20,7 @@
     <button class="tab-btn" data-tab="demonlist">Demonlist</button>
     <button class="tab-btn" data-tab="demonlist-minus">Demonlist -</button>
     <button class="tab-btn" data-tab="leaderboard">Leaderboard</button>
+    <button class="tab-btn" data-tab="leaderboard-minus-tab">Leaderboard -</button>
     <button class="tab-btn" data-tab="moderators">Moderators</button>
   </div>
 
@@ -55,22 +57,25 @@
     <div id="demon-container"></div>
   </div>
 
-  <!-- DEMONLIST - TAB -->
+  <!-- DEMONLIST - TAB (LIST ONLY) -->
   <div id="demonlist-minus" class="tab-content">
-    <h1>Demonlist - (0% Only)</h1>
+    <h1>Demonlist -</h1>
 
     <input type="text" id="search-bar-minus" placeholder="Search demons...">
 
     <div id="demon-container-minus"></div>
-
-    <h2>Leaderboard -</h2>
-    <div id="leaderboard-minus"></div>
   </div>
 
-  <!-- LEADERBOARD TAB -->
+  <!-- LEADERBOARD TAB (MAIN LIST) -->
   <div id="leaderboard" class="tab-content">
     <h1>Leaderboard</h1>
     <div id="leaderboard-container"></div>
+  </div>
+
+  <!-- LEADERBOARD - TAB (ONLY DEMONLIST - DEMONS) -->
+  <div id="leaderboard-minus-tab" class="tab-content">
+    <h1>Leaderboard -</h1>
+    <div id="leaderboard-minus"></div>
   </div>
 
   <!-- MODERATORS TAB -->
