@@ -34,10 +34,10 @@ if (localStorage.getItem("theme") === "light") {
 /* ---------------------------------------------------
    GLOBAL DATA
 --------------------------------------------------- */
-let globalDemons = [];      // main list
-let minusDemons = [];       // minus list
-let pointercrateDemons = []; // pointercrate source
-let mergedPointercrateDemons = []; // merged Demonlist+ + Pointercrate
+let globalDemons = [];      
+let minusDemons = [];       
+let pointercrateDemons = []; 
+let mergedPointercrateDemons = []; 
 
 /* ---------------------------------------------------
    HELPERS
@@ -69,7 +69,6 @@ function extractVideoID(url) {
   } catch {}
   return null;
 }
-
 /* ---------------------------------------------------
    LOAD MAIN DEMONLIST
 --------------------------------------------------- */
@@ -132,130 +131,6 @@ async function loadDemonListMinus() {
   } catch (e) {
     console.error("Error loading Demonlist -:", e);
   }
-}
-
-/* ---------------------------------------------------
-   LOAD POINTERCRATE LIST (SOURCE ONLY, NOT MERGED)
---------------------------------------------------- */
-async function loadPointercrateSource() {
-  try {
-    const list = await fetch("data/pointercrate_list.json").then(r => r.json());
-
-    const demonFiles = await Promise.all(
-      list.map(id =>
-        fetch(`data/pointercrate_demons/${id}.json`)
-          .then(r => (r.ok ? r.json() : null))
-          .catch(() => null)
-      )
-    );
-
-    pointercrateDemons = demonFiles
-      .map((d, i) => (d ? { ...d, id: list[i], pcPosition: i + 1 } : null))
-      .filter(Boolean);
-
-    mergePointercratePlus();
-    renderPointercrateList();
-    loadPointercrateLeaderboard();
-  } catch (e) {
-    console.error("Error loading Pointercrate source:", e);
-  }
-}
-
-/* ---------------------------------------------------
-   MERGE DEMONLIST+ + POINTERCRATE  (B1 + P1)
---------------------------------------------------- */
-function mergePointercratePlus() {
-  const map = new Map();
-
-  // Start from Demonlist+ data
-  globalDemons.forEach(d => {
-    map.set(d.id, {
-      ...d,
-      source: "dlplus"
-    });
-  });
-
-  // Merge pointercrate data
-  pointercrateDemons.forEach(pc => {
-    const existing = map.get(pc.id);
-    if (!existing) {
-      // Only on pointercrate
-      map.set(pc.id, {
-        ...pc,
-        position: pc.pcPosition, // if no dl+ position, use pointercrate
-        source: "pc"
-      });
-    } else {
-      // Exists on both -> true merge, harder position wins
-      const dlPos = existing.position || 9999;
-      const pcPos = pc.pcPosition || 9999;
-      const mergedPosition = Math.min(dlPos, pcPos);
-
-      const mergedRecords = [
-        ...(Array.isArray(existing.records) ? existing.records : []),
-        ...(Array.isArray(pc.records) ? pc.records : [])
-      ];
-
-      map.set(pc.id, {
-        ...existing,
-        // prefer dl+ name/author/etc but you could change this
-        name: existing.name || pc.name,
-        author: existing.author || pc.author,
-        creators: existing.creators || pc.creators,
-        verifier: existing.verifier || pc.verifier,
-        verification: existing.verification || pc.verification,
-        percentToQualify: existing.percentToQualify || pc.percentToQualify,
-        records: mergedRecords,
-        position: mergedPosition,
-        source: "merged"
-      });
-    }
-  });
-
-  mergedPointercrateDemons = Array.from(map.values())
-    .sort((a, b) => a.position - b.position);
-}
-
-/* ---------------------------------------------------
-   SEARCH BARS
---------------------------------------------------- */
-function setupSearchBar() {
-  const searchBar = document.getElementById("search-bar");
-  if (!searchBar) return;
-
-  searchBar.addEventListener("input", () => {
-    const query = searchBar.value.toLowerCase();
-    document.querySelectorAll("#demon-container .demon-card").forEach(card => {
-      const name = card.querySelector("h2").textContent.toLowerCase();
-      card.style.display = name.includes(query) ? "flex" : "none";
-    });
-  });
-}
-
-function setupMinusSearch() {
-  const searchBar = document.getElementById("search-bar-minus");
-  if (!searchBar) return;
-
-  searchBar.addEventListener("input", () => {
-    const query = searchBar.value.toLowerCase();
-    document.querySelectorAll("#demon-container-minus .demon-card").forEach(card => {
-      const name = card.querySelector("h2").textContent.toLowerCase();
-      card.style.display = name.includes(query) ? "flex" : "none";
-    });
-  });
-}
-
-function setupPointercrateSearch() {
-  const searchBar = document.getElementById("search-bar-pointercrate");
-  if (!searchBar) return;
-
-  searchBar.addEventListener("input", () => {
-    const query = searchBar.value.toLowerCase();
-    document.querySelectorAll("#pointercrate-container .panel").forEach(panel => {
-      const name = panel.querySelector("h2").textContent.toLowerCase();
-      panel.style.display = name.includes(query) ? "flex" : "none";
-    });
-  });
 }
 
 /* ---------------------------------------------------
@@ -384,136 +259,86 @@ function goBackToList() {
   document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
   document.getElementById("demonlist").classList.add("active");
 }
-
 /* ---------------------------------------------------
-   LEADERBOARD (MAIN)
+   LOAD POINTERCRATE LIST (SOURCE ONLY, NOT MERGED)
 --------------------------------------------------- */
-function loadLeaderboard() {
-  const players = {};
+async function loadPointercrateSource() {
+  try {
+    const list = await fetch("data/pointercrate_list.json").then(r => r.json());
 
-  globalDemons.forEach(demon => {
-    const pos = demon.position;
-    const demonScore = pos <= 75 ? 350 / Math.sqrt(pos) : 0;
+    const demonFiles = await Promise.all(
+      list.map(id =>
+        fetch(`data/demons/${id}.json`)   // ⭐ FIXED PATH
+          .then(r => (r.ok ? r.json() : null))
+          .catch(() => null)
+      )
+    );
 
-    if (demon.verifier && demon.verifier !== "Not beaten yet") {
-      const name = demon.verifier;
+    pointercrateDemons = demonFiles
+      .map((d, i) => (d ? { ...d, id: list[i], pcPosition: i + 1 } : null))
+      .filter(Boolean);
 
-      if (!players[name]) {
-        players[name] = { score: 0, records: [] };
-      }
+    // ⭐ Merge AFTER loading
+    mergePointercratePlus();
 
-      players[name].score += demonScore;
-
-      players[name].records.push({
-        demon: demon.name,
-        position: demon.position,
-        percent: 100,
-        link: demon.verification || null
-      });
-    }
-
-    if (Array.isArray(demon.records)) {
-      demon.records.forEach(rec => {
-        if (rec.user === "Not beaten yet") return;
-
-        const playerName = rec.user;
-        const scoreGain = demonScore * (rec.percent / 100);
-
-        if (!players[playerName]) {
-          players[playerName] = { score: 0, records: [] };
-        }
-
-        players[playerName].score += scoreGain;
-
-        players[playerName].records.push({
-          demon: demon.name,
-          position: demon.position,
-          percent: rec.percent,
-          link: rec.link
-        });
-      });
-    }
-  });
-
-  const sorted = Object.entries(players)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.score - a.score);
-
-  const container = document.getElementById("leaderboard-container");
-  container.innerHTML = "";
-
-  sorted.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.className = "leaderboard-row";
-    row.innerHTML = `
-      <span>${i + 1}</span>
-      <span class="clickable-player" data-player="${p.name}">${p.name}</span>
-      <span>${p.score.toFixed(2)}</span>
-    `;
-    container.appendChild(row);
-  });
-
-  document.querySelectorAll(".clickable-player").forEach(el => {
-    el.addEventListener("click", () => {
-      const name = el.dataset.player;
-      showPlayerProfile(name, sorted.find(p => p.name === name), "main");
-    });
-  });
+    renderPointercrateList();
+    loadPointercrateLeaderboard();
+  } catch (e) {
+    console.error("Error loading Pointercrate source:", e);
+  }
 }
 
 /* ---------------------------------------------------
-   LEADERBOARD - (SAME SCORING AS MAIN)
+   MERGE DEMONLIST+ + POINTERCRATE  (B1 + P1)
 --------------------------------------------------- */
-function loadLeaderboardMinus() {
-  const players = {};
+function mergePointercratePlus() {
+  const map = new Map();
 
-  minusDemons.forEach(demon => {
-    const demonScore = demon.position <= 75 ? 350 / Math.sqrt(demon.position) : 0;
+  // Start from Demonlist+
+  globalDemons.forEach(d => {
+    map.set(d.id, {
+      ...d,
+      source: "dlplus"
+    });
+  });
 
-    if (Array.isArray(demon.records)) {
-      demon.records.forEach(rec => {
-        const scoreGain = demonScore * (rec.percent / 100);
+  // Merge pointercrate data
+  pointercrateDemons.forEach(pc => {
+    const existing = map.get(pc.id);
 
-        if (!players[rec.user]) {
-          players[rec.user] = { score: 0, records: [] };
-        }
+    if (!existing) {
+      // Only on pointercrate
+      map.set(pc.id, {
+        ...pc,
+        position: pc.pcPosition,
+        source: "pc"
+      });
+    } else {
+      // Exists on both → true merge, harder position wins
+      const mergedPosition = Math.min(existing.position, pc.pcPosition);
 
-        players[rec.user].score += scoreGain;
+      const mergedRecords = [
+        ...(existing.records || []),
+        ...(pc.records || [])
+      ];
 
-        players[rec.user].records.push({
-          demon: demon.name,
-          position: demon.position,
-          percent: rec.percent,
-          link: rec.link
-        });
+      map.set(pc.id, {
+        ...existing,
+        name: existing.name || pc.name,
+        author: existing.author || pc.author,
+        creators: existing.creators || pc.creators,
+        verifier: existing.verifier || pc.verifier,
+        verification: existing.verification || pc.verification,
+        percentToQualify: existing.percentToQualify || pc.percentToQualify,
+        records: mergedRecords,
+        position: mergedPosition,
+        source: "merged"
       });
     }
   });
 
-  const sorted = Object.entries(players)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.score - a.score);
-
-  const container = document.getElementById("leaderboard-minus-container");
-  container.innerHTML = "";
-
-  sorted.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.className = "leaderboard-row";
-    row.innerHTML = `
-      <span>${i + 1}</span>
-      <span class="clickable-player-minus" data-player="${p.name}">${p.name}</span>
-      <span>${p.score.toFixed(2)}</span>
-    `;
-    container.appendChild(row);
-  });
-
-  document.querySelectorAll(".clickable-player-minus").forEach(el => {
-    el.addEventListener("click", () => {
-      const name = el.dataset.player;
-      showPlayerProfile(name, sorted.find(p => p.name === name), "minus");
-    });
-  });
+  mergedPointercrateDemons = Array.from(map.values())
+    .sort((a, b) => a.position - b.position);
 }
 
 /* ---------------------------------------------------
@@ -526,23 +351,15 @@ function renderPointercrateList() {
   mergedPointercrateDemons.forEach(demon => {
     const section = document.createElement("section");
     section.className = "panel fade flex mobile-col";
-    section.style.overflow = "hidden";
 
     const thumb = document.createElement("a");
     thumb.className = "thumb ratio-16-9";
-    const thumbUrl = getYoutubeThumbnail(demon.verification) || "fallback.png";
-    thumb.style.position = "relative";
-    thumb.style.backgroundImage = `url("${thumbUrl}")`;
+    thumb.style.backgroundImage = `url("${getYoutubeThumbnail(demon.verification) || "fallback.png"}")`;
     thumb.href = demon.verification || "#";
     thumb.target = "_blank";
 
-    const thumbInner = document.createElement("div");
-    thumbInner.className = "thumb-inner";
-    thumb.appendChild(thumbInner);
-
     const infoWrapper = document.createElement("div");
     infoWrapper.className = "flex pointercrate-demon-info";
-    infoWrapper.style.alignItems = "center";
 
     const byline = document.createElement("div");
     byline.className = "demon-byline";
@@ -551,22 +368,15 @@ function renderPointercrateList() {
     const demonScore = demon.position <= 75 ? (350 / Math.sqrt(demon.position)) : 0;
 
     const h2 = document.createElement("h2");
-    h2.style.textAlign = "left";
-    h2.style.marginBottom = "0px";
-    h2.innerHTML = `${positionLabel} – ${demon.name}`;
+    h2.textContent = `${positionLabel} – ${demon.name}`;
+    h2.style.cursor = "pointer";
+    h2.addEventListener("click", () => openPointercrateDemonPage(demon));
 
     const h3 = document.createElement("h3");
-    h3.style.textAlign = "left";
     h3.textContent = `by ${demon.author}`;
 
     const scoreDiv = document.createElement("div");
-    scoreDiv.style.textAlign = "left";
-    scoreDiv.style.fontSize = "0.8em";
     scoreDiv.textContent = `${demonScore.toFixed(2)} points`;
-
-    // Clicking the text opens Pointercrate+ demon page
-    h2.style.cursor = "pointer";
-    h2.addEventListener("click", () => openPointercrateDemonPage(demon));
 
     byline.appendChild(h2);
     byline.appendChild(h3);
@@ -581,6 +391,22 @@ function renderPointercrateList() {
   });
 
   setupPointercrateSearch();
+}
+
+/* ---------------------------------------------------
+   POINTERCRATE+ SEARCH BAR
+--------------------------------------------------- */
+function setupPointercrateSearch() {
+  const searchBar = document.getElementById("search-bar-pointercrate");
+  if (!searchBar) return;
+
+  searchBar.addEventListener("input", () => {
+    const query = searchBar.value.toLowerCase();
+    document.querySelectorAll("#pointercrate-container .panel").forEach(panel => {
+      const name = panel.querySelector("h2").textContent.toLowerCase();
+      panel.style.display = name.includes(query) ? "flex" : "none";
+    });
+  });
 }
 
 /* ---------------------------------------------------
@@ -613,7 +439,7 @@ function openPointercrateDemonPage(demon) {
   container.innerHTML = `
     <h1>${positionLabel} — ${demon.name}</h1>
     <p><strong>Author:</strong> ${demon.author}</p>
-    <p><strong>Creators:</strong> ${Array.isArray(demon.creators) ? demon.creators.join(", ") : (demon.creators || "Unknown")}</p>
+    <p><strong>Creators:</strong> ${Array.isArray(demon.creators) ? demon.creators.join(", ") : demon.creators}</p>
     <p><strong>Verifier:</strong> ${demon.verifier}</p>
     <p><strong>Percent to Qualify:</strong> ${demon.percentToQualify}%</p>
     <p><strong>Score Value:</strong> ${demonScore.toFixed(2)}</p>
@@ -629,125 +455,233 @@ function openPointercrateDemonPage(demon) {
     ${recordsHTML}
   `;
 }
+/* ---------------------------------------------------
+   MAIN LEADERBOARD
+--------------------------------------------------- */
+function loadLeaderboard() {
+  const container = document.getElementById("leaderboard-container");
+  container.innerHTML = "";
+
+  const scores = {};
+
+  globalDemons.forEach(demon => {
+    const demonScore = demon.position <= 75 ? (350 / Math.sqrt(demon.position)) : 0;
+
+    (demon.records || []).forEach(r => {
+      if (!scores[r.user]) scores[r.user] = 0;
+      scores[r.user] += demonScore * (r.percent / 100);
+    });
+  });
+
+  const sorted = Object.entries(scores)
+    .map(([user, score]) => ({ user, score }))
+    .sort((a, b) => b.score - a.score);
+
+  sorted.forEach((entry, i) => {
+    const row = document.createElement("div");
+    row.className = "leaderboard-row";
+    row.innerHTML = `
+      <span>#${i + 1}</span>
+      <span class="lb-user" onclick="openProfile('${entry.user}')">${entry.user}</span>
+      <span>${entry.score.toFixed(2)}</span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+/* ---------------------------------------------------
+   LEADERBOARD - (MINUS)
+--------------------------------------------------- */
+function loadLeaderboardMinus() {
+  const container = document.getElementById("leaderboard-minus-container");
+  container.innerHTML = "";
+
+  const scores = {};
+
+  minusDemons.forEach(demon => {
+    const demonScore = demon.position <= 75 ? (350 / Math.sqrt(demon.position)) : 0;
+
+    (demon.records || []).forEach(r => {
+      if (!scores[r.user]) scores[r.user] = 0;
+      scores[r.user] += demonScore * (r.percent / 100);
+    });
+  });
+
+  const sorted = Object.entries(scores)
+    .map(([user, score]) => ({ user, score }))
+    .sort((a, b) => b.score - a.score);
+
+  sorted.forEach((entry, i) => {
+    const row = document.createElement("div");
+    row.className = "leaderboard-row";
+    row.innerHTML = `
+      <span>#${i + 1}</span>
+      <span class="lb-user" onclick="openProfileMinus('${entry.user}')">${entry.user}</span>
+      <span>${entry.score.toFixed(2)}</span>
+    `;
+    container.appendChild(row);
+  });
+}
 
 /* ---------------------------------------------------
    POINTERCRATE+ LEADERBOARD
 --------------------------------------------------- */
 function loadPointercrateLeaderboard() {
-  const players = {};
-
-  mergedPointercrateDemons.forEach(demon => {
-    const pos = demon.position;
-    const demonScore = pos <= 75 ? 350 / Math.sqrt(pos) : 0;
-
-    if (Array.isArray(demon.records)) {
-      demon.records.forEach(rec => {
-        const scoreGain = demonScore * (rec.percent / 100);
-
-        if (!players[rec.user]) {
-          players[rec.user] = { score: 0, records: [] };
-        }
-
-        players[rec.user].score += scoreGain;
-
-        players[rec.user].records.push({
-          demon: demon.name,
-          position: demon.position,
-          percent: rec.percent,
-          link: rec.link
-        });
-      });
-    }
-  });
-
-  const sorted = Object.entries(players)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.score - a.score);
-
   const container = document.getElementById("pointercrate-leaderboard");
   container.innerHTML = "";
 
-  sorted.forEach((p, i) => {
+  const scores = {};
+
+  mergedPointercrateDemons.forEach(demon => {
+    const demonScore = demon.position <= 75 ? (350 / Math.sqrt(demon.position)) : 0;
+
+    (demon.records || []).forEach(r => {
+      if (!scores[r.user]) scores[r.user] = 0;
+      scores[r.user] += demonScore * (r.percent / 100);
+    });
+  });
+
+  const sorted = Object.entries(scores)
+    .map(([user, score]) => ({ user, score }))
+    .sort((a, b) => b.score - a.score);
+
+  sorted.forEach((entry, i) => {
     const row = document.createElement("div");
     row.className = "leaderboard-row";
     row.innerHTML = `
-      <span>${i + 1}</span>
-      <span class="clickable-player-pointercrate" data-player="${p.name}">${p.name}</span>
-      <span>${p.score.toFixed(2)}</span>
+      <span>#${i + 1}</span>
+      <span class="lb-user" onclick="openPointercrateProfile('${entry.user}')">${entry.user}</span>
+      <span>${entry.score.toFixed(2)}</span>
     `;
     container.appendChild(row);
-  });
-
-  document.querySelectorAll(".clickable-player-pointercrate").forEach(el => {
-    el.addEventListener("click", () => {
-      const name = el.dataset.player;
-      showPlayerProfile(name, sorted.find(p => p.name === name), "pointercrate");
-    });
   });
 }
 
 /* ---------------------------------------------------
-   PLAYER PROFILE (GENERIC)
+   PLAYER PROFILES (MAIN)
 --------------------------------------------------- */
-function showPlayerProfile(name, playerData, source) {
-  if (!playerData) return;
+function openProfile(user) {
+  const container = document.getElementById("profile-container");
+  container.innerHTML = `<h3>${user}</h3>`;
 
-  if (source === "main") {
-    document.getElementById("profile-container").innerHTML = buildProfileHTML(name, playerData);
-  } else if (source === "minus") {
-    document.getElementById("profile-minus-container").innerHTML = buildProfileHTML(name, playerData);
-  } else if (source === "pointercrate") {
-    document.getElementById("pointercrate-profile-container").innerHTML = buildProfileHTML(name, playerData);
-  }
-}
+  let total = 0;
+  const list = [];
 
-function buildProfileHTML(name, playerData) {
-  let html = `
-    <h2>${name}</h2>
-    <p><strong>Total score:</strong> ${playerData.score.toFixed(2)}</p>
-    <h3>Records:</h3>
-  `;
+  globalDemons.forEach(demon => {
+    const demonScore = demon.position <= 75 ? (350 / Math.sqrt(demon.position)) : 0;
 
-  const records = [...playerData.records].sort((a, b) => a.position - b.position);
+    (demon.records || []).forEach(r => {
+      if (r.user === user) {
+        const earned = demonScore * (r.percent / 100);
+        total += earned;
+        list.push({ demon: demon.name, percent: r.percent, score: earned });
+      }
+    });
+  });
 
-  records.forEach(r => {
-    const posLabel = r.position > 75 ? "Legacy" : "#" + r.position;
-    html += `
+  container.innerHTML += `<p><strong>Total Score:</strong> ${total.toFixed(2)}</p>`;
+
+  list.forEach(entry => {
+    container.innerHTML += `
       <div class="leaderboard-row">
-        <span>${posLabel}</span>
-        <span>${r.demon}</span>
-        <span>${r.percent ? r.percent + "%" : ""}</span>
-        ${r.link ? `<a href="${r.link}" target="_blank">Video</a>` : ""}
+        <span>${entry.demon}</span>
+        <span>${entry.percent}%</span>
+        <span>${entry.score.toFixed(2)}</span>
       </div>
     `;
   });
+}
 
-  return html;
+/* ---------------------------------------------------
+   PLAYER PROFILES (MINUS)
+--------------------------------------------------- */
+function openProfileMinus(user) {
+  const container = document.getElementById("profile-minus-container");
+  container.innerHTML = `<h3>${user}</h3>`;
+
+  let total = 0;
+  const list = [];
+
+  minusDemons.forEach(demon => {
+    const demonScore = demon.position <= 75 ? (350 / Math.sqrt(demon.position)) : 0;
+
+    (demon.records || []).forEach(r => {
+      if (r.user === user) {
+        const earned = demonScore * (r.percent / 100);
+        total += earned;
+        list.push({ demon: demon.name, percent: r.percent, score: earned });
+      }
+    });
+  });
+
+  container.innerHTML += `<p><strong>Total Score:</strong> ${total.toFixed(2)}</p>`;
+
+  list.forEach(entry => {
+    container.innerHTML += `
+      <div class="leaderboard-row">
+        <span>${entry.demon}</span>
+        <span>${entry.percent}%</span>
+        <span>${entry.score.toFixed(2)}</span>
+      </div>
+    `;
+  });
+}
+
+/* ---------------------------------------------------
+   POINTERCRATE+ PROFILE
+--------------------------------------------------- */
+function openPointercrateProfile(user) {
+  const container = document.getElementById("pointercrate-profile-container");
+  container.innerHTML = `<h3>${user}</h3>`;
+
+  let total = 0;
+  const list = [];
+
+  mergedPointercrateDemons.forEach(demon => {
+    const demonScore = demon.position <= 75 ? (350 / Math.sqrt(demon.position)) : 0;
+
+    (demon.records || []).forEach(r => {
+      if (r.user === user) {
+        const earned = demonScore * (r.percent / 100);
+        total += earned;
+        list.push({ demon: demon.name, percent: r.percent, score: earned });
+      }
+    });
+  });
+
+  container.innerHTML += `<p><strong>Total Score:</strong> ${total.toFixed(2)}</p>`;
+
+  list.forEach(entry => {
+    container.innerHTML += `
+      <div class="leaderboard-row">
+        <span>${entry.demon}</span>
+        <span>${entry.percent}%</span>
+        <span>${entry.score.toFixed(2)}</span>
+      </div>
+    `;
+  });
 }
 
 /* ---------------------------------------------------
    MODERATORS
 --------------------------------------------------- */
-function loadModerators() {
-  const container = document.getElementById("moderators-container");
+async function loadModerators() {
+  try {
+    const list = await fetch("data/moderators.json").then(r => r.json());
+    const container = document.getElementById("moderators-container");
 
-  const mods = [
-    { name: "UniverDemonlist", role: "Super Moderator" },
-    { name: "PowerGreen", role: "Moderator" },
-    { name: "Prometheus", role: "Developer" }
-  ];
-
-  mods.forEach(mod => {
-    const row = document.createElement("div");
-    row.className = "moderator-row";
-
-    row.innerHTML = `
-      <span>${mod.name}</span>
-      <span class="moderator-role">${mod.role}</span>
-    `;
-
-    container.appendChild(row);
-  });
+    list.forEach(mod => {
+      const div = document.createElement("div");
+      div.className = "moderator-card";
+      div.innerHTML = `
+        <h3>${mod.name}</h3>
+        <p>${mod.role}</p>
+      `;
+      container.appendChild(div);
+    });
+  } catch (e) {
+    console.error("Error loading moderators:", e);
+  }
 }
 
 /* ---------------------------------------------------
