@@ -3,7 +3,6 @@
 --------------------------------------------------- */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
 
@@ -43,54 +42,62 @@ let minusDemons = [];
    LOAD MAIN DEMONLIST
 --------------------------------------------------- */
 async function loadDemonList() {
-  const list = await fetch("data/list.json").then(r => r.json());
-  const container = document.getElementById("demon-container");
+  try {
+    const list = await fetch("data/list.json").then(r => r.json());
+    const container = document.getElementById("demon-container");
 
-  const demonFiles = await Promise.all(
-    list.map(id =>
-      fetch(`data/demons/${id}.json`)
-        .then(r => (r.ok ? r.json() : null))
-        .catch(() => null)
-    )
-  );
+    const demonFiles = await Promise.all(
+      list.map(id =>
+        fetch(`data/demons/${id}.json`)
+          .then(r => (r.ok ? r.json() : null))
+          .catch(() => null)
+      )
+    );
 
-  globalDemons = demonFiles
-    .map((d, i) => (d ? { ...d, position: i + 1 } : null))
-    .filter(Boolean);
+    globalDemons = demonFiles
+      .map((d, i) => (d ? { ...d, position: i + 1 } : null))
+      .filter(Boolean);
 
-  globalDemons.forEach(demon => {
-    const card = createDemonCard(demon);
-    container.appendChild(card);
-  });
+    globalDemons.forEach(demon => {
+      const card = createDemonCard(demon);
+      container.appendChild(card);
+    });
 
-  setupSearchBar();
-  loadLeaderboard();
+    setupSearchBar();
+    loadLeaderboard();
+  } catch (e) {
+    console.error("Error loading main demonlist:", e);
+  }
 }
 
 /* ---------------------------------------------------
    LOAD DEMONLIST -
 --------------------------------------------------- */
 async function loadDemonListMinus() {
-  const list = await fetch("data/list_minus.json").then(r => r.json());
-  const container = document.getElementById("demon-container-minus");
+  try {
+    const list = await fetch("data/list_minus.json").then(r => r.json());
+    const container = document.getElementById("demon-container-minus");
 
-  const demonFiles = await Promise.all(
-    list.map(id =>
-      fetch(`data/demons/${id}.json`)
-        .then(r => (r.ok ? r.json() : null))
-        .catch(() => null)
-    )
-  );
+    const demonFiles = await Promise.all(
+      list.map(id =>
+        fetch(`data/demons/${id}.json`)
+          .then(r => (r.ok ? r.json() : null))
+          .catch(() => null)
+      )
+    );
 
-  minusDemons = demonFiles.filter(Boolean);
+    minusDemons = demonFiles.filter(Boolean);
 
-  minusDemons.forEach(demon => {
-    const card = createDemonCard(demon);
-    container.appendChild(card);
-  });
+    minusDemons.forEach(demon => {
+      const card = createDemonCard(demon);
+      container.appendChild(card);
+    });
 
-  setupMinusSearch();
-  loadLeaderboardMinus(minusDemons);
+    setupMinusSearch();
+    loadLeaderboardMinus(minusDemons);
+  } catch (e) {
+    console.error("Error loading Demonlist -:", e);
+  }
 }
 
 /* ---------------------------------------------------
@@ -98,6 +105,7 @@ async function loadDemonListMinus() {
 --------------------------------------------------- */
 function setupSearchBar() {
   const searchBar = document.getElementById("search-bar");
+  if (!searchBar) return;
 
   searchBar.addEventListener("input", () => {
     const query = searchBar.value.toLowerCase();
@@ -114,6 +122,7 @@ function setupSearchBar() {
 --------------------------------------------------- */
 function setupMinusSearch() {
   const searchBar = document.getElementById("search-bar-minus");
+  if (!searchBar) return;
 
   searchBar.addEventListener("input", () => {
     const query = searchBar.value.toLowerCase();
@@ -220,211 +229,4 @@ function createDemonCard(demon) {
   btn.addEventListener("click", () => {
     const visible = dropdown.style.display === "block";
     dropdown.style.display = visible ? "none" : "block";
-    btn.textContent = visible ? "Show Records" : "Hide Records";
-  });
-
-  info.appendChild(btn);
-  info.appendChild(dropdown);
-
-  card.appendChild(img);
-  card.appendChild(info);
-
-  return card;
-}
-
-/* ---------------------------------------------------
-   FULL DEMON PAGE
---------------------------------------------------- */
-function openDemonPage(demon) {
-  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-  document.getElementById("demon-page").classList.add("active");
-
-  const container = document.getElementById("demon-page-container");
-  const positionLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
-
-  const demonScore = demon.position <= 75
-    ? (350 / Math.sqrt(demon.position))
-    : 0;
-
-  let recordsHTML = "";
-
-  if (Array.isArray(demon.records) && demon.records.length > 0) {
-    demon.records.forEach(r => {
-      recordsHTML += `
-        <div class="leaderboard-row">
-          <span>${r.user}</span>
-          <span>${r.percent}%</span>
-          <span>${r.hz}hz</span>
-          ${r.link ? `<a href="${r.link}" target="_blank">Video</a>` : ""}
-        </div>
-      `;
-    });
-  } else {
-    recordsHTML = "<p>No records yet.</p>";
-  }
-
-  const videoId = extractVideoID(demon.verification);
-
-  container.innerHTML = `
-    <button class="dropdown-btn back-btn" onclick="goBackToList()">← Back to List</button>
-
-    <h1>${positionLabel} — ${demon.name}</h1>
-
-    <p><strong>Author:</strong> ${demon.author}</p>
-    <p><strong>Creators:</strong> ${Array.isArray(demon.creators) ? demon.creators.join(", ") : (demon.creators || "Unknown")}</p>
-    <p><strong>Verifier:</strong> ${demon.verifier}</p>
-    <p><strong>Percent to Qualify:</strong> ${demon.percentToQualify}%</p>
-    <p><strong>Score Value:</strong> ${demonScore.toFixed(2)}</p>
-
-    <h2>Verification</h2>
-    ${
-      videoId
-        ? `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`
-        : "<p>No verification video.</p>"
-    }
-
-    <h2>Records</h2>
-    ${recordsHTML}
-  `;
-}
-
-function goBackToList() {
-  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-  document.getElementById("demonlist").classList.add("active");
-}
-
-/* ---------------------------------------------------
-   LEADERBOARD (MAIN)
---------------------------------------------------- */
-function loadLeaderboard() {
-  const players = {};
-
-  globalDemons.forEach(demon => {
-    const pos = demon.position;
-    const demonScore = pos <= 75 ? 350 / Math.sqrt(pos) : 0;
-
-    if (demon.verifier && demon.verifier !== "Not beaten yet") {
-      const name = demon.verifier;
-
-      if (!players[name]) {
-        players[name] = { score: 0, records: [] };
-      }
-
-      players[name].score += demonScore;
-
-      players[name].records.push({
-        demon: demon.name,
-        position: demon.position,
-        percent: 100,
-        link: demon.verification || null,
-        type: "Verification"
-      });
-    }
-
-    if (Array.isArray(demon.records)) {
-      demon.records.forEach(rec => {
-
-        if (rec.user === "Not beaten yet") return;
-
-        const playerName = rec.user;
-        const scoreGain = demonScore * (rec.percent / 100);
-
-        if (!players[playerName]) {
-          players[playerName] = { score: 0, records: [] };
-        }
-
-        players[playerName].score += scoreGain;
-
-        players[playerName].records.push({
-          demon: demon.name,
-          position: demon.position,
-          percent: rec.percent,
-          link: rec.link,
-          type: "Record"
-        });
-      });
-    }
-  });
-
-  const sorted = Object.entries(players)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.score - a.score);
-
-  const container = document.getElementById("leaderboard-container");
-  container.innerHTML = "";
-
-  sorted.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.className = "leaderboard-row";
-    row.innerHTML = `
-      <span>${i + 1}</span>
-      <span class="clickable-player" data-player="${p.name}">${p.name}</span>
-      <span>${p.score.toFixed(2)}</span>
-    `;
-    container.appendChild(row);
-  });
-
-  document.querySelectorAll(".clickable-player").forEach(el => {
-    el.addEventListener("click", () => {
-      const name = el.dataset.player;
-      showPlayerProfile(name, sorted.find(p => p.name === name));
-    });
-  });
-}
-
-/* ---------------------------------------------------
-   LEADERBOARD (MINUS)
---------------------------------------------------- */
-function loadLeaderboardMinus(demons) {
-  const players = {};
-
-  demons.forEach(demon => {
-    const demonScore = demon.position <= 75 ? 350 / Math.sqrt(demon.position) : 0;
-
-    if (Array.isArray(demon.records)) {
-      demon.records.forEach(rec => {
-
-        if (rec.percent === 100 && rec.fromZero === true) {
-
-          if (!players[rec.user]) {
-            players[rec.user] = { score: 0, records: [] };
-          }
-
-          players[rec.user].score += demonScore;
-
-          players[rec.user].records.push({
-            demon: demon.name,
-            position: demon.position,
-            link: rec.link
-          });
-        }
-      });
-    }
-  });
-
-  const sorted = Object.entries(players)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.score - a.score);
-
-  const container = document.getElementById("leaderboard-minus");
-  container.innerHTML = "";
-
-  sorted.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.className = "leaderboard-row";
-    row.innerHTML = `
-      <span>${i + 1}</span>
-      <span>${p.name}</span>
-      <span>${p.score.toFixed(2)}</span>
-    `;
-    container.appendChild(row);
-  });
-}
-
-/* ---------------------------------------------------
-   PLAYER PROFILE
---------------------------------------------------- */
-function showPlayerProfile(name, playerData) {
-  if (!playerData) return;
-
-  document.querySelectorAll(".tab-content").
+    btn.textContent = visible ? "Show
