@@ -4,12 +4,17 @@
   <meta charset="UTF-8">
   <title>Demonlist+</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
+
+  <!-- THEME TOGGLE -->
   <button id="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
 
   <h1>Demonlist+</h1>
 
+  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="home">Home</button>
     <button class="tab-btn" data-tab="demonlist">Demonlist</button>
@@ -27,7 +32,7 @@
     <button class="dropdown-btn" onclick="openDemonlistFromHome()">Open Demonlist</button>
   </div>
 
-  <!-- DEMONLIST (MAIN) -->
+  <!-- DEMONLIST -->
   <div id="demonlist" class="tab-content">
     <input id="search-bar" type="text" placeholder="Search demons...">
     <div id="demon-container"></div>
@@ -39,10 +44,11 @@
     <div id="demon-container-minus"></div>
   </div>
 
-  <!-- LEADERBOARD (MAIN) -->
+  <!-- LEADERBOARD -->
   <div id="leaderboard" class="tab-content">
     <h2>Main Leaderboard</h2>
     <div id="leaderboard-container"></div>
+
     <div id="profile" class="subsection">
       <h2>Player Profile</h2>
       <div id="profile-container"></div>
@@ -53,6 +59,7 @@
   <div id="leaderboard-minus" class="tab-content">
     <h2>Leaderboard -</h2>
     <div id="leaderboard-minus-container"></div>
+
     <div id="profile-minus" class="subsection">
       <h2>Player Profile</h2>
       <div id="profile-minus-container"></div>
@@ -65,7 +72,7 @@
     <div id="moderators-container"></div>
   </div>
 
-  <!-- DEMON PAGE (MAIN LIST / MINUS USE THIS) -->
+  <!-- DEMON PAGE (MAIN / MINUS) -->
   <div id="demon-page" class="tab-content">
     <div id="demon-page-container"></div>
   </div>
@@ -73,7 +80,9 @@
   <!-- POINTERCRATE+ -->
   <div id="pointercrate-plus" class="tab-content">
     <h2>Pointercrate+</h2>
+
     <input id="search-bar-pointercrate" type="text" placeholder="Search Pointercrate+ demons...">
+
     <div id="pointercrate-container"></div>
 
     <h2>Pointercrate+ Leaderboard</h2>
