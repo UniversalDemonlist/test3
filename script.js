@@ -294,47 +294,39 @@ async function loadPointercrateSource() {
 function mergePointercratePlus() {
   const map = new Map();
 
-  // Start from Demonlist+
-  globalDemons.forEach(d => {
-    map.set(d.id, {
-      ...d,
-      source: "dlplus"
+  // Start with POINTERCRATE demons only
+  pointercrateDemons.forEach(pc => {
+    map.set(pc.id, {
+      ...pc,
+      position: pc.pcPosition,
+      source: "pc"
     });
   });
 
-  // Merge pointercrate data
-  pointercrateDemons.forEach(pc => {
-    const existing = map.get(pc.id);
+  // Merge Demonlist+ ONLY IF the demon is already on Pointercrate
+  globalDemons.forEach(dl => {
+    const existing = map.get(dl.id);
+    if (!existing) return; // ❗ Demonlist-only demons are ignored
 
-    if (!existing) {
-      // Only on pointercrate
-      map.set(pc.id, {
-        ...pc,
-        position: pc.pcPosition,
-        source: "pc"
-      });
-    } else {
-      // Exists on both → true merge, harder position wins
-      const mergedPosition = Math.min(existing.position, pc.pcPosition);
+    const mergedPosition = Math.min(existing.position, dl.position);
 
-      const mergedRecords = [
-        ...(existing.records || []),
-        ...(pc.records || [])
-      ];
+    const mergedRecords = [
+      ...(existing.records || []),
+      ...(dl.records || [])
+    ];
 
-      map.set(pc.id, {
-        ...existing,
-        name: existing.name || pc.name,
-        author: existing.author || pc.author,
-        creators: existing.creators || pc.creators,
-        verifier: existing.verifier || pc.verifier,
-        verification: existing.verification || pc.verification,
-        percentToQualify: existing.percentToQualify || pc.percentToQualify,
-        records: mergedRecords,
-        position: mergedPosition,
-        source: "merged"
-      });
-    }
+    map.set(dl.id, {
+      ...existing,
+      name: dl.name || existing.name,
+      author: dl.author || existing.author,
+      creators: dl.creators || existing.creators,
+      verifier: dl.verifier || existing.verifier,
+      verification: dl.verification || existing.verification,
+      percentToQualify: dl.percentToQualify || existing.percentToQualify,
+      records: mergedRecords,
+      position: mergedPosition,
+      source: "merged"
+    });
   });
 
   mergedPointercrateDemons = Array.from(map.values())
@@ -691,3 +683,4 @@ loadDemonList();
 loadDemonListMinus();
 loadModerators();
 loadPointercrateSource();
+
