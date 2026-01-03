@@ -18,6 +18,11 @@
   "image": "assets/badges/top1_current.png",
   "title": "Current Top 1 Player",
   "description": "This player is currently ranked #1 on the Demonlist+ leaderboard."
+},
+"top1_victor": {
+  "image": "assets/badges/top1_victor.png",
+  "title": "Top 1 Demon Victor",
+  "description": "Beat or verified the current #1 demon."
 }
 
 }
