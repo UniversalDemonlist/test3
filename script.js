@@ -42,42 +42,15 @@ let badgeDefinitions = {};
    COUNTRY NAMES
 --------------------------------------------------- */
 const COUNTRY_NAMES = {
-  "IT": "Italy",
-  "US": "United States",
-  "DE": "Germany",
-  "ES": "Spain",
-  "GB": "United Kingdom",
-  "NZ": "New Zealand",
-  "RU": "Russia",
-  "FR": "France",
-  "CA": "Canada",
-  "AU": "Australia",
-  "BR": "Brazil",
-  "SE": "Sweden",
-  "NO": "Norway",
-  "FI": "Finland",
-  "NL": "Netherlands",
-  "BE": "Belgium",
-  "CH": "Switzerland",
-  "AT": "Austria",
-  "PL": "Poland",
-  "PT": "Portugal",
-  "MX": "Mexico",
-  "JP": "Japan",
-  "KR": "South Korea",
-  "CN": "China",
-  "IN": "India",
-  "DK": "Denmark",
-  "CZ": "Czech Republic",
-  "SK": "Slovakia",
-  "HU": "Hungary",
-  "RO": "Romania",
-  "BG": "Bulgaria",
-  "GR": "Greece",
-  "IE": "Ireland",
-  "AR": "Argentina",
-  "CL": "Chile",
-  "ZA": "South Africa"
+  "IT": "Italy", "US": "United States", "DE": "Germany", "ES": "Spain",
+  "GB": "United Kingdom", "NZ": "New Zealand", "RU": "Russia", "FR": "France",
+  "CA": "Canada", "AU": "Australia", "BR": "Brazil", "SE": "Sweden",
+  "NO": "Norway", "FI": "Finland", "NL": "Netherlands", "BE": "Belgium",
+  "CH": "Switzerland", "AT": "Austria", "PL": "Poland", "PT": "Portugal",
+  "MX": "Mexico", "JP": "Japan", "KR": "South Korea", "CN": "China",
+  "IN": "India", "DK": "Denmark", "CZ": "Czech Republic", "SK": "Slovakia",
+  "HU": "Hungary", "RO": "Romania", "BG": "Bulgaria", "GR": "Greece",
+  "IE": "Ireland", "AR": "Argentina", "CL": "Chile", "ZA": "South Africa"
 };
 
 /* ---------------------------------------------------
@@ -91,10 +64,7 @@ async function loadPlayerCountries() {
 
     for (const name in raw) {
       const p = raw[name];
-
-      const profile = typeof p === "string"
-        ? { country: p }
-        : p || {};
+      const profile = typeof p === "string" ? { country: p } : p || {};
 
       playerProfiles[name] = {
         country: profile.country || "(no country)",
@@ -355,9 +325,11 @@ function renderFullBadges(name) {
 function loadLeaderboard() {
   const players = {};
 
+  // Calculate player scores
   globalDemons.forEach(demon => {
     const score = demon.position <= 75 ? 350 / Math.sqrt(demon.position) : 0;
 
+    // Verifier gets full score
     if (demon.verifier && demon.verifier !== "Not beaten yet") {
       const name = demon.verifier;
       if (!players[name]) players[name] = { score: 0, records: [] };
@@ -372,6 +344,7 @@ function loadLeaderboard() {
       });
     }
 
+    // Records
     if (Array.isArray(demon.records)) {
       demon.records.forEach(r => {
         if (r.user === "Not beaten yet") return;
@@ -393,10 +366,15 @@ function loadLeaderboard() {
     }
   });
 
+  // Sort players
   const sorted = Object.entries(players)
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.score - a.score);
 
+  // Automatic badges BEFORE rendering leaderboard
+  applyAutomaticBadges(sorted);
+
+  // Render leaderboard
   const container = document.getElementById("leaderboard-container");
   container.innerHTML = "";
 
@@ -420,80 +398,75 @@ function loadLeaderboard() {
     container.appendChild(row);
   });
 
+  // Clickable profiles
   document.querySelectorAll(".clickable-player").forEach(el => {
     el.addEventListener("click", () => {
       const name = el.dataset.player;
       showPlayerProfile(name, sorted.find(p => p.name === name));
     });
   });
-/* ---------------------------------------------------
-   CURRENT TOP 1 BADGE
---------------------------------------------------- */
-sorted.forEach((p, index) => {
-  const profile = playerProfiles[p.name];
-  if (!profile) return;
 
-  if (!profile.badges) profile.badges = [];
-
-  // Remove old badge
-  profile.badges = profile.badges.filter(b => b !== "top1_current");
-
-  // Assign to current #1
-  if (index === 0) {
-    profile.badges.push("top1_current");
-  }
-});
-
-/* ---------------------------------------------------
-   TOP 1 DEMON VICTOR BADGE (BEAT OR VERIFIED)
---------------------------------------------------- */
-const top1 = globalDemons.find(d => d.position === 1);
-
-// Remove badge from everyone first
-Object.values(playerProfiles).forEach(profile => {
-  if (!profile.badges) profile.badges = [];
-  profile.badges = profile.badges.filter(b => b !== "top1_victor");
-});
-
-// Award to verifier
-if (top1 && top1.verifier) {
-  const verifierProfile = playerProfiles[top1.verifier];
-  if (verifierProfile && !verifierProfile.badges.includes("top1_victor")) {
-    verifierProfile.badges.push("top1_victor");
-  }
+  // Country leaderboard
+  loadCountryLeaderboard(sorted);
 }
 
-// Award to anyone who beat the #1 demon
-if (top1 && Array.isArray(top1.records)) {
-  top1.records.forEach(r => {
-    if (r.percent === 100) {
-      const profile = playerProfiles[r.user];
-      if (profile && !profile.badges.includes("top1_victor")) {
-        profile.badges.push("top1_victor");
+/* ---------------------------------------------------
+   AUTOMATIC BADGES
+--------------------------------------------------- */
+function applyAutomaticBadges(sortedPlayers) {
+  // Remove all automatic badges first
+  Object.values(playerProfiles).forEach(profile => {
+    if (!profile.badges) profile.badges = [];
+    profile.badges = profile.badges.filter(b =>
+      b !== "gamer" &&
+      b !== "top1_current" &&
+      b !== "top1_victor"
+    );
+  });
+
+  /* Gamer badge (≥ 0.1 points) */
+  sortedPlayers.forEach(p => {
+    if (p.score >= 0.1) {
+      const profile = playerProfiles[p.name];
+      if (profile && !profile.badges.includes("gamer")) {
+        profile.badges.push("gamer");
       }
     }
   });
 
-  loadCountryLeaderboard(sorted);
-    /* ---------------------------------------------------
-   CURRENT TOP 1 BADGE
---------------------------------------------------- */
-sorted.forEach((p, index) => {
-  const profile = playerProfiles[p.name];
-  if (!profile) return;
-
-  // Ensure badges array exists
-  if (!profile.badges) profile.badges = [];
-
-  // Remove badge from everyone first
-  profile.badges = profile.badges.filter(b => b !== "top1_current");
-
-  // Assign badge to current #1 only
-  if (index === 0) {
-    profile.badges.push("top1_current");
+  /* Current Top 1 Player badge */
+  if (sortedPlayers.length > 0) {
+    const top1Player = sortedPlayers[0].name;
+    const profile = playerProfiles[top1Player];
+    if (profile && !profile.badges.includes("top1_current")) {
+      profile.badges.push("top1_current");
+    }
   }
-});
 
+  /* Top 1 Demon Victor badge */
+  const top1Demon = globalDemons.find(d => d.position === 1);
+
+  if (top1Demon) {
+    // Verifier
+    if (top1Demon.verifier) {
+      const profile = playerProfiles[top1Demon.verifier];
+      if (profile && !profile.badges.includes("top1_victor")) {
+        profile.badges.push("top1_victor");
+      }
+    }
+
+    // Anyone with 100%
+    if (Array.isArray(top1Demon.records)) {
+      top1Demon.records.forEach(r => {
+        if (r.percent === 100) {
+          const profile = playerProfiles[r.user];
+          if (profile && !profile.badges.includes("top1_victor")) {
+            profile.badges.push("top1_victor");
+          }
+        }
+      });
+    }
+  }
 }
 
 /* ---------------------------------------------------
@@ -546,10 +519,10 @@ function loadCountryLeaderboard(sortedPlayers) {
 function showPlayerProfile(name, playerData) {
   if (!playerData) return;
 
-  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-  document.getElementById("profile").classList.add("active");
+document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+document.getElementById("profile").classList.add("active");
 
-  const container = document.getElementById("profile-container");
+const container = document.getElementById("profile-container");
 
   const profile = playerProfiles[name] || {
     country: "(no country)",
@@ -609,7 +582,7 @@ function showPlayerProfile(name, playerData) {
     const posLabel = r.position > 75 ? "Legacy" : "#" + r.position;
     const typeLabel = r.type === "Verification" ? "(Verification)" : "";
 
-        div.innerHTML = `
+    div.innerHTML = `
       <span>${posLabel}</span>
       <span>${r.demon}</span>
       <span>${r.percent ? r.percent + "%" : ""} ${typeLabel}</span>
@@ -619,7 +592,6 @@ function showPlayerProfile(name, playerData) {
     container.appendChild(div);
   });
 }
-
 /* ---------------------------------------------------
    SUBTABS (LEADERBOARD)
 --------------------------------------------------- */
@@ -670,6 +642,4 @@ loadBadgeDefinitions();
 loadNewDemons();
 loadDemonList();
 loadModerators();
-
-
 
