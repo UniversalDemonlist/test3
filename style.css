@@ -143,6 +143,12 @@ h2, h3 {
   border-radius: 10px;
   align-items: center;
   border: 1px solid var(--border);
+  transition: 0.15s ease;
+}
+
+.demon-card:hover {
+  transform: translateY(-2px);
+  border-color: #4da3ff;
 }
 
 .demon-card img {
@@ -231,6 +237,15 @@ h2, h3 {
 .clickable-player-pointercrate {
   cursor: pointer;
   color: #4da3ff;
+}
+
+/* FLAG ICONS */
+.flag {
+  width: 20px;
+  height: 14px;
+  margin-right: 6px;
+  border-radius: 2px;
+  vertical-align: middle;
 }
 
 /* ---------------------------------------------------
@@ -397,6 +412,7 @@ h2, h3 {
 .demon-byline a:hover {
   text-decoration: underline;
 }
+
 /* ---------------------------------------------------
    POINTERCRATE+ FONT OVERRIDE
 --------------------------------------------------- */
@@ -505,6 +521,7 @@ h2, h3 {
   margin-bottom: 6px;
   border-radius: 6px;
 }
+
 body.light-mode {
   --card-bg: #ffffff;
   --card-hover: #f2f2f2;
@@ -515,9 +532,11 @@ body.light-mode,
 body.light-mode * {
   color: var(--text-color) !important;
 }
+
 #pointercrate-container .panel {
   border-radius: 0 !important;
 }
+
 #pointercrate-container .thumb {
   width: 220px;
   height: 124px;
@@ -527,5 +546,3 @@ body.light-mode * {
   overflow: hidden;
   flex-shrink: 0;
 }
-
-
