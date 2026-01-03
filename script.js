@@ -1,6 +1,4 @@
-/* ---------------------------------------------------
-   MAIN TAB SWITCHING
---------------------------------------------------- */
+/* MAIN TAB SWITCHING */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -8,6 +6,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 
     btn.classList.add("active");
     document.getElementById(btn.dataset.tab).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 });
 
@@ -15,9 +14,7 @@ function openDemonlistFromHome() {
   document.querySelector('.tab-btn[data-tab="demonlist"]').click();
 }
 
-/* ---------------------------------------------------
-   THEME TOGGLE
---------------------------------------------------- */
+/* THEME TOGGLE */
 function toggleTheme() {
   document.body.classList.toggle("light-mode");
   localStorage.setItem("theme", document.body.classList.contains("light-mode") ? "light" : "dark");
@@ -27,15 +24,13 @@ if (localStorage.getItem("theme") === "light") {
   document.body.classList.add("light-mode");
 }
 
-/* ---------------------------------------------------
-   GLOBAL STORAGE
---------------------------------------------------- */
+/* GLOBAL STORAGE */
 let globalDemons = [];
 let playerCountries = {};
+let playerProfiles = {};
+let newDemons = [];
 
-/* ---------------------------------------------------
-   COUNTRY NAME MAP
---------------------------------------------------- */
+/* COUNTRY NAME MAP */
 const COUNTRY_NAMES = {
   "IT": "Italy",
   "US": "United States",
@@ -75,20 +70,32 @@ const COUNTRY_NAMES = {
   "ZA": "South Africa"
 };
 
-/* ---------------------------------------------------
-   LOAD PLAYER COUNTRIES
---------------------------------------------------- */
+/* LOAD PLAYER PROFILES + COUNTRIES */
 async function loadPlayerCountries() {
   try {
-    playerCountries = await fetch("data/players.json").then(r => r.json());
+    const playersRaw = await fetch("data/players.json").then(r => r.json());
+    playerProfiles = playersRaw;
+    playerCountries = {};
+    for (const name in playersRaw) {
+      const p = playersRaw[name];
+      if (p && p.country) playerCountries[name] = p.country;
+    }
   } catch {
     playerCountries = {};
+    playerProfiles = {};
   }
 }
 
-/* ---------------------------------------------------
-   LOAD DEMONLIST
---------------------------------------------------- */
+/* LOAD NEW DEMONS (for NEW badges) */
+async function loadNewDemons() {
+  try {
+    newDemons = await fetch("data/new.json").then(r => r.json());
+  } catch {
+    newDemons = [];
+  }
+}
+
+/* LOAD DEMONLIST */
 async function loadDemonList() {
   try {
     const list = await fetch("data/list.json").then(r => r.json());
@@ -117,9 +124,7 @@ async function loadDemonList() {
   }
 }
 
-/* ---------------------------------------------------
-   SEARCH BAR
---------------------------------------------------- */
+/* SEARCH BAR */
 function setupSearchBar() {
   const searchBar = document.getElementById("search-bar");
   if (!searchBar) return;
@@ -133,9 +138,7 @@ function setupSearchBar() {
   });
 }
 
-/* ---------------------------------------------------
-   YOUTUBE HELPERS
---------------------------------------------------- */
+/* YOUTUBE HELPERS */
 function getYoutubeThumbnail(url) {
   if (!url) return null;
   try {
@@ -159,9 +162,7 @@ function extractVideoID(url) {
   return null;
 }
 
-/* ---------------------------------------------------
-   DEMON CARD
---------------------------------------------------- */
+/* DEMON CARD */
 function createDemonCard(demon) {
   const card = document.createElement("div");
   card.className = "demon-card";
@@ -179,8 +180,15 @@ function createDemonCard(demon) {
   const score = demon.position <= 75 ? 350 / Math.sqrt(demon.position) : 0;
   const posLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
 
+  const isNew =
+    newDemons.includes(demon.name) ||
+    newDemons.includes(demon.position) ||
+    newDemons.includes(String(demon.position));
+
+  const newBadge = isNew ? `<span class="new-badge">NEW</span>` : "";
+
   info.innerHTML = `
-    <h2>${posLabel} — ${demon.name}</h2>
+    <h2>${posLabel} — ${demon.name} ${newBadge}</h2>
     <p><strong>Author:</strong> ${demon.author}</p>
     <p><strong>Creators:</strong> ${creators}</p>
     <p><strong>Verifier:</strong> ${demon.verifier}</p>
@@ -196,9 +204,7 @@ function createDemonCard(demon) {
   return card;
 }
 
-/* ---------------------------------------------------
-   DEMON PAGE
---------------------------------------------------- */
+/* DEMON PAGE */
 function openDemonPage(demon) {
   document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
   document.getElementById("demon-page").classList.add("active");
@@ -254,9 +260,7 @@ function goBackToList() {
   document.querySelector('.tab-btn[data-tab="demonlist"]').click();
 }
 
-/* ---------------------------------------------------
-   LEADERBOARD (PLAYERS)
---------------------------------------------------- */
+/* LEADERBOARD (PLAYERS) */
 function loadLeaderboard() {
   const players = {};
 
@@ -335,9 +339,7 @@ function loadLeaderboard() {
   loadCountryLeaderboard(sorted);
 }
 
-/* ---------------------------------------------------
-   COUNTRY LEADERBOARD (UPDATED)
---------------------------------------------------- */
+/* COUNTRY LEADERBOARD */
 function loadCountryLeaderboard(sortedPlayers) {
   const countryScores = {};
 
@@ -376,9 +378,7 @@ function loadCountryLeaderboard(sortedPlayers) {
   });
 }
 
-/* ---------------------------------------------------
-   PLAYER PROFILE
---------------------------------------------------- */
+/* PLAYER PROFILE (WITH BIO, SOCIAL, FAVORITES) */
 function showPlayerProfile(name, playerData) {
   if (!playerData) return;
 
@@ -392,11 +392,32 @@ function showPlayerProfile(name, playerData) {
     ? `<img class="flag" src="https://flagcdn.com/24x18/${country.toLowerCase()}.png">`
     : "";
 
+  const profile = playerProfiles[name] || {};
+  const bio = profile.bio || "No bio available.";
+  const socials = profile.social || {};
+  const favorites = profile.favorites || [];
+
   container.innerHTML = `
     <button class="back-btn" onclick="goBackToList()">← Back</button>
     <h2>${flag} ${name}</h2>
     <p><strong>Total score:</strong> ${playerData.score.toFixed(2)}</p>
-    <h3>Records:</h3>
+
+    <h3>Bio</h3>
+    <p>${bio}</p>
+
+    <h3>Social Links</h3>
+    <p>
+      ${socials.youtube ? `<a href="${socials.youtube}" target="_blank">YouTube</a><br>` : ""}
+      ${socials.twitter ? `<a href="${socials.twitter}" target="_blank">Twitter</a><br>` : ""}
+      ${socials.twitch ? `<a href="${socials.twitch}" target="_blank">Twitch</a><br>` : ""}
+    </p>
+
+    <h3>Favorite Demons</h3>
+    <ul>
+      ${favorites.map(f => `<li>${f}</li>`).join("")}
+    </ul>
+
+    <h3>Records</h3>
   `;
 
   const records = [...playerData.records].sort((a, b) => a.position - b.position);
@@ -419,9 +440,7 @@ function showPlayerProfile(name, playerData) {
   });
 }
 
-/* ---------------------------------------------------
-   SUB-TABS
---------------------------------------------------- */
+/* SUB-TABS (LEADERBOARD) */
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".subtab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -436,9 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-/* ---------------------------------------------------
-   MODERATORS
---------------------------------------------------- */
+/* MODERATORS */
 function loadModerators() {
   const container = document.getElementById("moderators-container");
 
@@ -461,9 +478,33 @@ function loadModerators() {
   });
 }
 
-/* ---------------------------------------------------
-   STARTUP
---------------------------------------------------- */
+/* NEWS */
+async function loadNews() {
+  const container = document.getElementById("news-container");
+  if (!container) return;
+
+  try {
+    const news = await fetch("data/news.json").then(r => r.json());
+    news.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "leaderboard-row";
+      div.innerHTML = `
+        <div>
+          <strong>${item.title}</strong><br>
+          <small>${item.date}</small>
+        </div>
+        <p>${item.content}</p>
+      `;
+      container.appendChild(div);
+    });
+  } catch {
+    container.innerHTML = "<p>No news available.</p>";
+  }
+}
+
+/* STARTUP */
 loadPlayerCountries();
+loadNewDemons();
 loadDemonList();
 loadModerators();
+loadNews();
