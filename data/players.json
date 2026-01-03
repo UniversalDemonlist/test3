@@ -1,15 +1,80 @@
 {
-  "Zoink": "US",
-  "PowerGreen": "IT",
-  "wPopoff": "US",
-  "Trick": "US",
-  "BelgioneArancio": "IT",
-  "Cuatrocientos": "ES",
-  "zLevii": "NZ",
-  "Whizkid05": "GB",
-  "Cursed": "GB",
-  "ROZE": "RU",
-  "eastshark": "ES",
-  "Doggie": "US",
-  "Taiago": "PO"  
+  "Zoink": {
+    "country": "US",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "PowerGreen": {
+    "country": "IT",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "wPopoff": {
+    "country": "US",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "Trick": {
+    "country": "US",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "BelgioneArancio": {
+    "country": "IT",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "Cuatrocientos": {
+    "country": "ES",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "zLevii": {
+    "country": "NZ",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "Whizkid05": {
+    "country": "GB",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "Cursed": {
+    "country": "GB",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "ROZE": {
+    "country": "RU",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "eastshark": {
+    "country": "ES",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "Doggie": {
+    "country": "US",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  },
+  "Taiago": {
+    "country": "PT",
+    "bio": "",
+    "social": {},
+    "favorites": []
+  }
 }
