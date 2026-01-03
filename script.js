@@ -11,7 +11,6 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-/* HOME → DEMONLIST BUTTON */
 function openDemonlistFromHome() {
   document.querySelector('.tab-btn[data-tab="demonlist"]').click();
 }
@@ -35,13 +34,54 @@ let globalDemons = [];
 let playerCountries = {};
 
 /* ---------------------------------------------------
+   COUNTRY NAME MAP
+--------------------------------------------------- */
+const COUNTRY_NAMES = {
+  "IT": "Italy",
+  "US": "United States",
+  "DE": "Germany",
+  "ES": "Spain",
+  "GB": "United Kingdom",
+  "NZ": "New Zealand",
+  "FR": "France",
+  "CA": "Canada",
+  "AU": "Australia",
+  "BR": "Brazil",
+  "RU": "Russia",
+  "SE": "Sweden",
+  "NO": "Norway",
+  "FI": "Finland",
+  "NL": "Netherlands",
+  "BE": "Belgium",
+  "CH": "Switzerland",
+  "AT": "Austria",
+  "PL": "Poland",
+  "PT": "Portugal",
+  "MX": "Mexico",
+  "JP": "Japan",
+  "KR": "South Korea",
+  "CN": "China",
+  "IN": "India",
+  "DK": "Denmark",
+  "CZ": "Czech Republic",
+  "SK": "Slovakia",
+  "HU": "Hungary",
+  "RO": "Romania",
+  "BG": "Bulgaria",
+  "GR": "Greece",
+  "IE": "Ireland",
+  "AR": "Argentina",
+  "CL": "Chile",
+  "ZA": "South Africa"
+};
+
+/* ---------------------------------------------------
    LOAD PLAYER COUNTRIES
 --------------------------------------------------- */
 async function loadPlayerCountries() {
   try {
     playerCountries = await fetch("data/players.json").then(r => r.json());
-  } catch (e) {
-    console.warn("players.json missing or invalid");
+  } catch {
     playerCountries = {};
   }
 }
@@ -120,14 +160,14 @@ function extractVideoID(url) {
 }
 
 /* ---------------------------------------------------
-   DEMON CARD (CLICKABLE)
+   DEMON CARD
 --------------------------------------------------- */
 function createDemonCard(demon) {
   const card = document.createElement("div");
   card.className = "demon-card";
 
   const img = document.createElement("img");
-  img.src = getYoutubeThumbnail(demon.verification) || "fallback.png";
+  img.src = getYoutubeThumbnail(demon.verification) || "https://via.placeholder.com/240x140?text=No+Preview";
 
   const info = document.createElement("div");
   info.className = "demon-info";
@@ -296,7 +336,7 @@ function loadLeaderboard() {
 }
 
 /* ---------------------------------------------------
-   COUNTRY LEADERBOARD
+   COUNTRY LEADERBOARD (UPDATED)
 --------------------------------------------------- */
 function loadCountryLeaderboard(sortedPlayers) {
   const countryScores = {};
@@ -324,10 +364,11 @@ function loadCountryLeaderboard(sortedPlayers) {
     row.className = "leaderboard-row";
 
     const flag = `<img class="flag" src="https://flagcdn.com/24x18/${c.code.toLowerCase()}.png">`;
+    const fullName = COUNTRY_NAMES[c.code] || c.code;
 
     row.innerHTML = `
       <span>${i + 1}</span>
-      <span>${flag} ${c.code}</span>
+      <span>${flag} ${fullName}</span>
       <span>${c.score.toFixed(2)}</span>
     `;
 
@@ -379,7 +420,7 @@ function showPlayerProfile(name, playerData) {
 }
 
 /* ---------------------------------------------------
-   SUB-TABS (Leaderboard internal tabs)
+   SUB-TABS
 --------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".subtab-btn").forEach(btn => {
