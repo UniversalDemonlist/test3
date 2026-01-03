@@ -33,10 +33,23 @@ if (localStorage.getItem("theme") === "light") {
 }
 
 /* ---------------------------------------------------
-   GLOBAL DEMON STORAGE
+   GLOBAL DEMON & PLAYER STORAGE
 --------------------------------------------------- */
 let globalDemons = [];
 let minusDemons = [];
+let playerCountries = {};
+
+/* ---------------------------------------------------
+   LOAD PLAYER COUNTRIES (players.json)
+--------------------------------------------------- */
+async function loadPlayerCountries() {
+  try {
+    playerCountries = await fetch("data/players.json").then(r => r.json());
+  } catch (e) {
+    console.warn("players.json not found or invalid:", e);
+    playerCountries = {};
+  }
+}
 
 /* ---------------------------------------------------
    LOAD MAIN DEMONLIST
@@ -86,7 +99,6 @@ async function loadDemonListMinus() {
       )
     );
 
-    /* FIXED: assign positions so #undefined disappears */
     minusDemons = demonFiles
       .map((d, i) => (d ? { ...d, position: i + 1 } : null))
       .filter(Boolean);
@@ -172,7 +184,7 @@ function extractVideoID(url) {
 }
 
 /* ---------------------------------------------------
-   DEMON CARD
+   DEMON CARD (NOW FULLY CLICKABLE)
 --------------------------------------------------- */
 function createDemonCard(demon) {
   const card = document.createElement("div");
@@ -203,43 +215,12 @@ function createDemonCard(demon) {
     <p><strong>Score Value:</strong> ${demonScore.toFixed(2)}</p>
   `;
 
-  const viewBtn = document.createElement("button");
-  viewBtn.className = "dropdown-btn";
-  viewBtn.textContent = "View Demon Page";
-  viewBtn.addEventListener("click", () => openDemonPage(demon));
-  info.appendChild(viewBtn);
-
-  const btn = document.createElement("button");
-  btn.className = "dropdown-btn";
-  btn.textContent = "Show Records";
-
-  const dropdown = document.createElement("div");
-  dropdown.className = "record-dropdown";
-
-  if (Array.isArray(demon.records) && demon.records.length > 0) {
-    demon.records.forEach(r => {
-      const p = document.createElement("p");
-      p.innerHTML = `
-        <strong>${r.user}</strong> — ${r.percent}% (${r.hz}hz)
-        ${r.link ? `<br><a href="${r.link}" target="_blank">Video</a>` : ""}
-      `;
-      dropdown.appendChild(p);
-    });
-  } else {
-    dropdown.innerHTML = "<p>No records yet.</p>";
-  }
-
-  btn.addEventListener("click", () => {
-    const visible = dropdown.style.display === "block";
-    dropdown.style.display = visible ? "none" : "block";
-    btn.textContent = visible ? "Show Records" : "Hide Records";
-  });
-
-  info.appendChild(btn);
-  info.appendChild(dropdown);
-
   card.appendChild(img);
   card.appendChild(info);
+
+  // Make entire card clickable
+  card.addEventListener("click", () => openDemonPage(demon));
+  card.style.cursor = "pointer";
 
   return card;
 }
@@ -306,7 +287,7 @@ function goBackToList() {
 }
 
 /* ---------------------------------------------------
-   LEADERBOARD (MAIN)
+   LEADERBOARD (MAIN) WITH FLAGS
 --------------------------------------------------- */
 function loadLeaderboard() {
   const players = {};
@@ -368,11 +349,20 @@ function loadLeaderboard() {
   sorted.forEach((p, i) => {
     const row = document.createElement("div");
     row.className = "leaderboard-row";
+
+    const country = playerCountries[p.name];
+    const flag = country
+      ? `<img class="flag" src="https://flagcdn.com/24x18/${country.toLowerCase()}.png" alt="${country} flag">`
+      : "";
+
     row.innerHTML = `
       <span>${i + 1}</span>
-      <span class="clickable-player" data-player="${p.name}">${p.name}</span>
+      <span class="clickable-player" data-player="${p.name}">
+        ${flag} ${p.name}
+      </span>
       <span>${p.score.toFixed(2)}</span>
     `;
+
     container.appendChild(row);
   });
 
@@ -385,7 +375,7 @@ function loadLeaderboard() {
 }
 
 /* ---------------------------------------------------
-   LEADERBOARD (MINUS)
+   LEADERBOARD (MINUS) WITH FLAGS
 --------------------------------------------------- */
 function loadLeaderboardMinus(demons) {
   const players = {};
@@ -424,17 +414,26 @@ function loadLeaderboardMinus(demons) {
   sorted.forEach((p, i) => {
     const row = document.createElement("div");
     row.className = "leaderboard-row";
+
+    const country = playerCountries[p.name];
+    const flag = country
+      ? `<img class="flag" src="https://flagcdn.com/24x18/${country.toLowerCase()}.png" alt="${country} flag">`
+      : "";
+
     row.innerHTML = `
       <span>${i + 1}</span>
-      <span>${p.name}</span>
+      <span>
+        ${flag} ${p.name}
+      </span>
       <span>${p.score.toFixed(2)}</span>
     `;
+
     container.appendChild(row);
   });
 }
 
 /* ---------------------------------------------------
-   PLAYER PROFILE
+   PLAYER PROFILE (USES FLAGS TOO)
 --------------------------------------------------- */
 function showPlayerProfile(name, playerData) {
   if (!playerData) return;
@@ -443,11 +442,16 @@ function showPlayerProfile(name, playerData) {
   document.getElementById("profile").classList.add("active");
 
   const container = document.getElementById("profile-container");
+  const country = playerCountries[name];
+  const flag = country
+    ? `<img class="flag" src="https://flagcdn.com/24x18/${country.toLowerCase()}.png" alt="${country} flag">`
+    : "";
+
   container.innerHTML = `
-    <h2>${name}</h2>
+    <h2>${flag} ${name}</h2>
     <p><strong>Total score:</strong> ${playerData.score.toFixed(2)}</p>
     <h3>Records:</h3>
-  `;
+  );
 
   const records = [...playerData.records].sort((a, b) => a.position - b.position);
 
@@ -496,6 +500,7 @@ function loadModerators() {
 /* ---------------------------------------------------
    START
 --------------------------------------------------- */
+loadPlayerCountries();
 loadDemonList();
 loadDemonListMinus();
 loadModerators();
