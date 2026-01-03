@@ -447,6 +447,35 @@ sorted.forEach((p, index) => {
   }
 });
 
+/* ---------------------------------------------------
+   TOP 1 DEMON VICTOR BADGE (BEAT OR VERIFIED)
+--------------------------------------------------- */
+const top1 = globalDemons.find(d => d.position === 1);
+
+// Remove badge from everyone first
+Object.values(playerProfiles).forEach(profile => {
+  if (!profile.badges) profile.badges = [];
+  profile.badges = profile.badges.filter(b => b !== "top1_victor");
+});
+
+// Award to verifier
+if (top1 && top1.verifier) {
+  const verifierProfile = playerProfiles[top1.verifier];
+  if (verifierProfile && !verifierProfile.badges.includes("top1_victor")) {
+    verifierProfile.badges.push("top1_victor");
+  }
+}
+
+// Award to anyone who beat the #1 demon
+if (top1 && Array.isArray(top1.records)) {
+  top1.records.forEach(r => {
+    if (r.percent === 100) {
+      const profile = playerProfiles[r.user];
+      if (profile && !profile.badges.includes("top1_victor")) {
+        profile.badges.push("top1_victor");
+      }
+    }
+  });
 }
 
 /* ---------------------------------------------------
@@ -623,4 +652,5 @@ loadBadgeDefinitions();
 loadNewDemons();
 loadDemonList();
 loadModerators();
+
 
