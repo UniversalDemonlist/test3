@@ -1,0 +1,18 @@
+{
+    "id": 109780665,
+    "name": "Random Processing",
+    "author": "Robtop",
+    "creators": ["Robtop"],
+    "verifier": "Glotch",
+    "verification": "https://youtu.be/sUbrXFCNWsA",
+    "percentToQualify": 57,
+    "password": "Not Copyable",
+    "records": [
+        {
+            "user": "Doggie",
+            "link": "https://www.youtube.com/watch?v=nb9zJ5hDN7A",
+            "percent": 100,
+            "hz": 360
+        }
+    ]
+}
