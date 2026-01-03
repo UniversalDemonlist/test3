@@ -1,5 +1,5 @@
 /* ---------------------------------------------------
-   MAIN TAB SWITCHING
+   TAB SWITCHING
 --------------------------------------------------- */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -30,15 +30,16 @@ if (localStorage.getItem("theme") === "light") {
 }
 
 /* ---------------------------------------------------
-   GLOBAL STORAGE
+   GLOBAL DATA
 --------------------------------------------------- */
 let globalDemons = [];
-let playerCountries = {};
 let playerProfiles = {};
+let playerCountries = {};
 let newDemons = [];
+let badgeDefinitions = {};
 
 /* ---------------------------------------------------
-   COUNTRY NAME MAP
+   COUNTRY NAMES
 --------------------------------------------------- */
 const COUNTRY_NAMES = {
   "IT": "Italy",
@@ -80,31 +81,30 @@ const COUNTRY_NAMES = {
 };
 
 /* ---------------------------------------------------
-   LOAD PLAYER PROFILES + DEFAULTS
+   LOAD PLAYERS + DEFAULTS
 --------------------------------------------------- */
 async function loadPlayerCountries() {
   try {
-    const playersRaw = await fetch("data/players.json").then(r => r.json());
+    const raw = await fetch("data/players.json").then(r => r.json());
     playerProfiles = {};
     playerCountries = {};
 
-    for (const name in playersRaw) {
-      const raw = playersRaw[name];
+    for (const name in raw) {
+      const p = raw[name];
 
-      // Allow simple "Name": "IT" format or full object
-      const profile = typeof raw === "string"
-        ? { country: raw }
-        : raw || {};
+      const profile = typeof p === "string"
+        ? { country: p }
+        : p || {};
 
-      const normalized = {
+      playerProfiles[name] = {
         country: profile.country || "(no country)",
         bio: profile.bio || "(no bio)",
         social: profile.social || {},
-        favorites: profile.favorites || []
+        favorites: profile.favorites || [],
+        badges: profile.badges || []
       };
 
-      playerProfiles[name] = normalized;
-      playerCountries[name] = normalized.country;
+      playerCountries[name] = playerProfiles[name].country;
     }
   } catch {
     playerProfiles = {};
@@ -113,7 +113,18 @@ async function loadPlayerCountries() {
 }
 
 /* ---------------------------------------------------
-   LOAD NEW DEMONS (for NEW badges)
+   LOAD BADGE DEFINITIONS
+--------------------------------------------------- */
+async function loadBadgeDefinitions() {
+  try {
+    badgeDefinitions = await fetch("data/badges.json").then(r => r.json());
+  } catch {
+    badgeDefinitions = {};
+  }
+}
+
+/* ---------------------------------------------------
+   LOAD NEW DEMONS
 --------------------------------------------------- */
 async function loadNewDemons() {
   try {
@@ -299,6 +310,46 @@ function goBackToList() {
 }
 
 /* ---------------------------------------------------
+   MINI BADGES (LEADERBOARD)
+--------------------------------------------------- */
+function renderMiniBadges(name) {
+  const profile = playerProfiles[name];
+  if (!profile || !profile.badges) return "";
+
+  return profile.badges
+    .map(b => {
+      const def = badgeDefinitions[b];
+      if (!def) return "";
+      return `<img src="${def.image}" class="mini-badge">`;
+    })
+    .join("");
+}
+
+/* ---------------------------------------------------
+   FULL BADGES (PROFILE)
+--------------------------------------------------- */
+function renderFullBadges(name) {
+  const profile = playerProfiles[name];
+  if (!profile || !profile.badges) return "";
+
+  return profile.badges
+    .map(b => {
+      const def = badgeDefinitions[b];
+      if (!def) return "";
+      return `
+        <div class="full-badge">
+          <img src="${def.image}" class="badge-icon">
+          <div class="badge-text">
+            <strong>${def.title}</strong><br>
+            <em>${def.description}</em>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+/* ---------------------------------------------------
    LEADERBOARD (PLAYERS)
 --------------------------------------------------- */
 function loadLeaderboard() {
@@ -353,16 +404,15 @@ function loadLeaderboard() {
     const row = document.createElement("div");
     row.className = "leaderboard-row";
 
-    const countryCode = playerCountries[p.name];
-    const hasCountry = countryCode && countryCode !== "(no country)";
-    const flag = hasCountry && COUNTRY_NAMES[countryCode]
-      ? `<img class="flag" src="https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png">`
+    const country = playerCountries[p.name];
+    const flag = COUNTRY_NAMES[country]
+      ? `<img class="flag" src="https://flagcdn.com/24x18/${country.toLowerCase()}.png">`
       : "";
 
     row.innerHTML = `
       <span>${i + 1}</span>
       <span class="clickable-player" data-player="${p.name}">
-        ${flag} ${p.name}
+        ${flag} ${p.name} ${renderMiniBadges(p.name)}
       </span>
       <span>${p.score.toFixed(2)}</span>
     `;
@@ -425,7 +475,7 @@ function loadCountryLeaderboard(sortedPlayers) {
 }
 
 /* ---------------------------------------------------
-   PLAYER PROFILE (WITH DEFAULTS)
+   PLAYER PROFILE
 --------------------------------------------------- */
 function showPlayerProfile(name, playerData) {
   if (!playerData) return;
@@ -439,12 +489,12 @@ function showPlayerProfile(name, playerData) {
     country: "(no country)",
     bio: "(no bio)",
     social: {},
-    favorites: []
+    favorites: [],
+    badges: []
   };
 
   const country = profile.country;
-  const hasCountry = country && country !== "(no country)";
-  const flag = hasCountry && COUNTRY_NAMES[country]
+  const flag = COUNTRY_NAMES[country]
     ? `<img class="flag" src="https://flagcdn.com/24x18/${country.toLowerCase()}.png">`
     : "";
 
@@ -456,6 +506,11 @@ function showPlayerProfile(name, playerData) {
     <button class="back-btn" onclick="goBackToList()">← Back</button>
     <h2>${flag} ${name}</h2>
     <p><strong>Total score:</strong> ${playerData.score.toFixed(2)}</p>
+
+    <h3>Badges</h3>
+    <div class="badge-container">
+      ${renderFullBadges(name) || "<p>(no badges)</p>"}
+    </div>
 
     <h3>Bio</h3>
     <p>${bio}</p>
@@ -488,7 +543,7 @@ function showPlayerProfile(name, playerData) {
     const posLabel = r.position > 75 ? "Legacy" : "#" + r.position;
     const typeLabel = r.type === "Verification" ? "(Verification)" : "";
 
-    div.innerHTML = `
+        div.innerHTML = `
       <span>${posLabel}</span>
       <span>${r.demon}</span>
       <span>${r.percent ? r.percent + "%" : ""} ${typeLabel}</span>
@@ -500,7 +555,7 @@ function showPlayerProfile(name, playerData) {
 }
 
 /* ---------------------------------------------------
-   SUB-TABS (LEADERBOARD)
+   SUBTABS (LEADERBOARD)
 --------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".subtab-btn").forEach(btn => {
@@ -545,6 +600,7 @@ function loadModerators() {
    STARTUP
 --------------------------------------------------- */
 loadPlayerCountries();
+loadBadgeDefinitions();
 loadNewDemons();
 loadDemonList();
 loadModerators();
