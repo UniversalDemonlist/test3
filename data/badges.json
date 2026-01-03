@@ -1,0 +1,17 @@
+{
+  "former_top1": {
+    "image": "assets/badges/former_top1.png",
+    "title": "Former Top 1 Player",
+    "description": "Reached the top 1 spot at least once in their career before being dethroned."
+  },
+  "moderator": {
+    "image": "assets/badges/moderator.png",
+    "title": "Moderator",
+    "description": "Helps maintain the Demonlist+ platform."
+  },
+  "gamer": {
+    "image": "assets/badges/gamer.png",
+    "title": "Gamer",
+    "description": "Successfully beat at least one demon."
+  }
+}
