@@ -3,15 +3,17 @@
     "country": "US",
     "badges": ["former_top1"],
     "bio": "Gd player 🥱🥱 Top 1 player on pointercrate",
-    "social": {https://www.youtube.com/@Zoink},
-    "favorites": [Thinking Space II]
+    "social": {
+      "youtube": "https://www.youtube.com/@Zoink"
+    },
+    "favorites": ["Thinking Space II"]
   },
   "PowerGreen": {
     "country": "IT",
     "badges": ["moderator"],
     "bio": "I Play Cube Game",
     "social": {},
-    "favorites": [Flamewall]
+    "favorites": ["Flamewall"]
   },
   "wPopoff": {
     "country": "US",
