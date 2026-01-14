@@ -668,7 +668,9 @@ loadPlayerCountries();
 loadBadgeDefinitions();
 loadNewDemons();
 loadDemonList();
+loadDemonListMinus();
 loadModerators();
+
 
 
 
