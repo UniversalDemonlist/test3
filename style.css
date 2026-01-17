@@ -363,5 +363,17 @@ body.dark-mode .history-box {
 body.dark-mode .history-row {
   border-bottom-color: #555;
 }
+.video-center {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.video-center iframe {
+  display: block;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+
 
 
