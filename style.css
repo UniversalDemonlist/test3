@@ -231,7 +231,39 @@ a:hover {
   color: #666;
 }
 /* ---------------------------------------------------
-   POINTERCRATE BLUE CUBE BACKGROUND
+   POINTERCRATE BLUE CUBE SIDE DECORATIONS
+--------------------------------------------------- */
+.cube-left, .cube-right {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 140px;
+  background-image:
+    linear-gradient(45deg, #0077cc 25%, transparent 25%),
+    linear-gradient(-45deg, #005fa3 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #0077cc 75%),
+    linear-gradient(-45deg, transparent 75%, #005fa3 75%);
+  background-size: 90px 90px;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.cube-left {
+  left: 0;
+}
+
+.cube-right {
+  right: 0;
+}
+
+@media (max-width: 768px) {
+  .cube-left, .cube-right {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------
+   BLUE CUBE BACKGROUND BEHIND DEMONLIST CONTENT
 --------------------------------------------------- */
 .blue-cube-bg {
   position: relative;
@@ -263,4 +295,6 @@ a:hover {
   position: relative;
   z-index: 1;
 }
+
+
 
