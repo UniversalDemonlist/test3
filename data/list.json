@@ -26,6 +26,8 @@
     "Quanteuse Processing",
     "Aquamarine",
     "Blaster Wave Infinity",
+    "Spectre",
+    "Menace",
     "SilentDynamix",
     "Sonic Wave Inf",
     "Silentlocke",
@@ -40,8 +42,6 @@
     "Ashley Wave Trials",
     "Zodiac",
     "Diabolic Clubstep",
-    "Spectre",
-    "Menace",
     "Yatagarasu",
     "Through The Gates",
     "Itsu",
@@ -661,6 +661,7 @@
     "cerebral_torment",
     "falling_maze"
 ]
+
 
 
 
