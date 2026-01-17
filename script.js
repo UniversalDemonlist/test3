@@ -297,6 +297,85 @@ function openDemonPage(demon) {
 
   const videoHTML = videoId
     ? `
+      <div class="video-wrapper">
+        <iframe 
+          src="https://www.youtube.com/embed/${videoId}"
+          allowfullscreen>
+        </iframe>
+      </div>
+    `
+    : "<p>No verification video.</p>";
+
+  // -------------------------------
+  // PAGE CONTENT
+  // -------------------------------
+  container.innerHTML = `
+    <button class="back-btn" onclick="goBackToList()">← Back to List</button>
+
+    <div class="center-block">
+      <h1 class="demon-title">${posLabel} — ${demon.name}</h1>
+      <h2>Verification</h2>
+      ${videoHTML}
+    </div>
+
+    <p><strong>Author:</strong> ${demon.author}</p>
+    <p><strong>Creators:</strong> ${Array.isArray(demon.creators) ? demon.creators.join(", ") : demon.creators}</p>
+    <p><strong>Verifier:</strong> ${demon.verifier}</p>
+    <p><strong>Percent to Qualify:</strong> ${demon.percentToQualify}%</p>
+    <p><strong>Score Value:</strong> ${score.toFixed(2)}</p>
+
+    <h2>Position History</h2>
+    <div class="history-box">
+      ${historyHTML}
+    </div>
+
+    <h2>Records</h2>
+    ${recordsHTML}
+  `;
+}
+
+function goBackToList() {
+  document.querySelector('.tab-btn[data-tab="demonlist"]').click();
+}
+
+
+  // -------------------------------
+  // RECORDS
+  // -------------------------------
+  let recordsHTML = "";
+
+  if (Array.isArray(demon.records) && demon.records.length > 0) {
+    demon.records.forEach(r => {
+      recordsHTML += `
+        <div class="leaderboard-row">
+          <span>${r.user}</span>
+          <span>${r.percent}%</span>
+          <span>${r.hz || ""}</span>
+          ${r.link ? `<a href="${r.link}" target="_blank">Video</a>` : ""}
+        </div>
+      `;
+    });
+  } else {
+    recordsHTML = "<p>No records yet.</p>";
+  }
+
+  // -------------------------------
+  // HISTORY (safe fallback)
+  // -------------------------------
+  const historyHTML =
+    demon.history && Array.isArray(demon.history) && demon.history.length > 0
+      ? demon.history
+          .map((pos, i) => `<div class="history-row">Update ${i + 1}: #${pos}</div>`)
+          .join("")
+      : "<div class='history-row'>No history available</div>";
+
+  // -------------------------------
+  // VIDEO EMBED (centered)
+  // -------------------------------
+  const videoId = extractVideoID(demon.verification);
+
+  const videoHTML = videoId
+    ? `
       <div class="video-center">
         <iframe 
           width="560" 
@@ -706,6 +785,7 @@ loadNewDemons();
 loadDemonList();
 loadDemonListMinus();
 loadModerators();
+
 
 
 
