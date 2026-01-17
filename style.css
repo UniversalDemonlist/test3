@@ -230,3 +230,37 @@ a:hover {
   font-style: italic;
   color: #666;
 }
+/* ---------------------------------------------------
+   POINTERCRATE BLUE CUBE BACKGROUND
+--------------------------------------------------- */
+.blue-cube-bg {
+  position: relative;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: #f4f8ff;
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.blue-cube-bg::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 260%;
+  height: 260%;
+  background-image:
+    linear-gradient(45deg, #0077cc 25%, transparent 25%),
+    linear-gradient(-45deg, #005fa3 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #0077cc 75%),
+    linear-gradient(-45deg, transparent 75%, #005fa3 75%);
+  background-size: 90px 90px;
+  opacity: 0.12;
+  z-index: 0;
+}
+
+.blue-cube-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
