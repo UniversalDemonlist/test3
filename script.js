@@ -221,8 +221,8 @@ function createDemonCard(demon) {
     ? demon.creators.join(", ")
     : demon.creators || "Unknown";
 
-  const score = demon.position <= 150 ? 350 / Math.sqrt(demon.position) : 0;
-  const posLabel = demon.position > 150 ? "Legacy" : "#" + demon.position;
+  const score = demon.position <= 75 ? 350 / Math.sqrt(demon.position) : 0;
+  const posLabel = demon.position > 75 ? "Legacy" : "#" + demon.position;
 
   const isNew =
     newDemons.includes(demon.name) ||
@@ -700,6 +700,7 @@ loadNewDemons();
 loadDemonList();
 loadDemonListMinus();
 loadModerators();
+
 
 
 
