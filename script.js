@@ -690,6 +690,28 @@ function loadModerators() {
     container.appendChild(row);
   });
 }
+function buildListDropdowns() {
+  const main = document.getElementById("dropdown-main");
+  const extended = document.getElementById("dropdown-extended");
+  const legacy = document.getElementById("dropdown-legacy");
+
+  main.innerHTML = "";
+  extended.innerHTML = "";
+  legacy.innerHTML = "";
+
+  globalDemons.forEach(demon => {
+    const pos = demon.position;
+
+    const link = document.createElement("a");
+    link.textContent = `#${pos} — ${demon.name}`;
+    link.href = "javascript:void(0)";
+    link.addEventListener("click", () => openDemonPage(demon));
+
+    if (pos <= 30) main.appendChild(link);
+    else if (pos <= 75) extended.appendChild(link);
+    else legacy.appendChild(link);
+  });
+}
 
 /* ---------------------------------------------------
    STARTUP
@@ -700,6 +722,7 @@ loadNewDemons();
 loadDemonList().then(buildListDropdowns);
 loadDemonListMinus();
 loadModerators();
+
 
 
 
