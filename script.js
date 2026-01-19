@@ -177,6 +177,25 @@ function setupSearchBar() {
     });
   });
 }
+// DROPDOWN TOGGLE LOGIC
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.dataset.dropdown;
+    const dropdown = document.getElementById(`dropdown-${target}`);
+
+    const isOpen = dropdown.style.display === "block";
+
+    // Close all dropdowns
+    document.querySelectorAll(".list-dropdown").forEach(d => d.style.display = "none");
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+
+    // Toggle this one
+    if (!isOpen) {
+      dropdown.style.display = "block";
+      btn.classList.add("active");
+    }
+  });
+});
 
 /* ---------------------------------------------------
    YOUTUBE HELPERS
@@ -722,6 +741,7 @@ loadNewDemons();
 loadDemonList().then(buildListDropdowns);
 loadDemonListMinus();
 loadModerators();
+
 
 
 
