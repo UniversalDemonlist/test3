@@ -19,6 +19,12 @@
             "link": "https://www.youtube.com/watch?v=awS_gVqQGHc",
             "percent": 100,
             "hz": 60
+        },
+        {
+            "user": "UserInterface",
+            "link": "https://www.youtube.com/watch?v=uCFKxpjSm9k",
+            "percent": 100,
+            "hz": 360
         }
     ]
 }
