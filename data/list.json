@@ -38,7 +38,6 @@
     "Silentlocke",
     "Subterminal Point",
     "Innard",
-    "Battle O",
     "Sightless Sandstorm",
     "Eternalt",
     "Element 111 Rg",
@@ -48,17 +47,16 @@
     "Diabolic Clubstep",
     "Yatagarasu",
     "Through The Gates",
-    "Itsu",
     "NOMAD",
     "SNOWBOUND",
     "THE SALT FACTORY",
     "MAP OF PROBLEMATIQUE",
     "Abyss Of Darkness",
     "Tunnel Of Despair",
-    "M I S F O R T U N E",
     "Defeated Circles",
     "kyouki",
     "slaughterhouse",
+    "kocmoc",
     "Centipede",
     "Based After Based",
     "Blooming Bl",
@@ -71,7 +69,9 @@
     "The Lightning Rod",
     "Kosetsu",
     "poocubed",
-    "kocmoc",
+    "Itsu",
+    "Battle O",
+    "M I S F O R T U N E",
     "Hazard Duty Pay",
     "Sevvend Clubstep",
     "arcturus",
@@ -667,6 +667,7 @@
     "cerebral_torment",
     "falling_maze"
 ]
+
 
 
 
