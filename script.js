@@ -240,8 +240,19 @@ function createDemonCard(demon) {
   const card = document.createElement("div");
   card.className = "demon-card";
 
-  const img = document.createElement("img");
-  img.src = getYoutubeThumbnail(demon.verification) || "https://via.placeholder.com/240x140?text=No+Preview";
+const img = document.createElement("img");
+
+// 1. If demon.thumbnail exists and is not empty → use it
+// 2. Else → use verification thumbnail
+// 3. Else → placeholder
+const customThumb = demon.thumbnail && demon.thumbnail.trim();
+const verificationThumb = getYoutubeThumbnail(demon.verification);
+
+img.src =
+  customThumb ||
+  verificationThumb ||
+  "https://via.placeholder.com/240x140?text=No+Preview";
+
 
   const info = document.createElement("div");
   info.className = "demon-info";
@@ -815,6 +826,7 @@ document.getElementById("dc-new-demon").textContent =
 // Output updated list.json
 document.getElementById("dc-updated-list").textContent =
   JSON.stringify(updatedListJson, null, 4);
+
 
 
 
