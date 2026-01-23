@@ -764,68 +764,73 @@ loadDemonListMinus();
 loadModerators();
 
 function dc_generate() {
-// Use the demonlist already loaded by your site
-const existingList = window.demonList ? [...window.demonList] : [];
 
-if (!existingList.length) {
-  alert("Your demonlist is not loaded yet.");
-  return;
-}
+  // Use the demonlist already loaded by your site
+  const existingList = window.demonList ? [...window.demonList] : [];
 
-// Get the filename (required for list.json)
-const filename = document.getElementById("dc-filename").value.trim();
-if (!filename) {
-  alert("You must enter a filename.");
-  return;
-}
+  if (!existingList.length) {
+    alert("Your demonlist is not loaded yet.");
+    return;
+  }
 
-// Build the demon object
-const verificationLink = document.getElementById("dc-verification").value.trim();
-const customThumb = document.getElementById("dc-thumbnail").value.trim();
+  // Get the filename (required for list.json)
+  const filename = document.getElementById("dc-filename").value.trim();
+  if (!filename) {
+    alert("You must enter a filename.");
+    return;
+  }
 
-// Extract YouTube video ID for fallback thumbnail
-function extractYouTubeID(url) {
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?/]+)/);
-  return match ? match[1] : null;
-}
+  // Build the demon object
+  const verificationLink = document.getElementById("dc-verification").value.trim();
+  const customThumb = document.getElementById("dc-thumbnail").value.trim();
 
-const videoID = extractYouTubeID(verificationLink);
-const fallbackThumb = videoID
-  ? `https://i.ytimg.com/vi/${videoID}/hqdefault.jpg`
-  : "";
+  // Extract YouTube video ID for fallback thumbnail
+  function extractYouTubeID(url) {
+    const match = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?/]+)/);
+    return match ? match[1] : null;
+  }
 
-// Build demon object
-const newDemon = {
-  id: Number(document.getElementById("dc-id").value),
-  name: document.getElementById("dc-name").value,
-  author: document.getElementById("dc-author").value, // ✅ FIXED
-  creators: document.getElementById("dc-creators").value.split(",").map(s => s.trim()),
-  verifier: document.getElementById("dc-verifier").value,
-  verification: verificationLink,
-  percentToQualify: Number(document.getElementById("dc-percent").value),
-  password: document.getElementById("dc-password").value,
-  thumbnail: customThumb || fallbackThumb, // ⭐ AUTO‑FALLBACK
-  records: []
-};
+  const videoID = extractYouTubeID(verificationLink);
+  const fallbackThumb = videoID
+    ? `https://i.ytimg.com/vi/${videoID}/hqdefault.jpg`
+    : "";
 
-const placement = Number(document.getElementById("dc-placement").value);
+  // Build demon object
+  const newDemon = {
+    id: Number(document.getElementById("dc-id").value),
+    name: document.getElementById("dc-name").value,
+    author: document.getElementById("dc-author").value,
+    creators: document.getElementById("dc-creators").value.split(",").map(s => s.trim()),
+    verifier: document.getElementById("dc-verifier").value,
+    verification: verificationLink,
+    percentToQualify: Number(document.getElementById("dc-percent").value),
+    password: document.getElementById("dc-password").value,
+    thumbnail: customThumb || fallbackThumb,
+    records: []
+  };
 
-// 1️⃣ Build updated demon object list (for preview only)
-const updatedDemons = [...existingList];
-updatedDemons.splice(placement - 1, 0, newDemon);
-updatedDemons.forEach((d, i) => d.position = i + 1);
+  const placement = Number(document.getElementById("dc-placement").value);
 
-// 2️⃣ Build updated list.json (filenames only)
-const updatedListJson = [...window.originalListJson]; // original filenames
-updatedListJson.splice(placement - 1, 0, filename);
+  // 1️⃣ Build updated demon object list (for preview only)
+  const updatedDemons = [...existingList];
+  updatedDemons.splice(placement - 1, 0, newDemon);
+  updatedDemons.forEach((d, i) => d.position = i + 1);
 
-// Output demon JSON
-document.getElementById("dc-new-demon").textContent =
-  JSON.stringify(newDemon, null, 4);
+  // 2️⃣ Build updated list.json (filenames only)
+  const updatedListJson = [...window.originalListJson];
+  updatedListJson.splice(placement - 1, 0, filename);
 
-// Output updated list.json
-document.getElementById("dc-updated-list").textContent =
-  JSON.stringify(updatedListJson, null, 4);
+  // Output demon JSON
+  document.getElementById("dc-new-demon").textContent =
+    JSON.stringify(newDemon, null, 4);
+
+  // Output updated list.json
+  document.getElementById("dc-updated-list").textContent =
+    JSON.stringify(updatedListJson, null, 4);
+
+} // ⭐ THIS WAS MISSING
+
+
 
 
 
