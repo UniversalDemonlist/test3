@@ -769,17 +769,33 @@ function dc_generate() {
   }
 
   // Build the demon object
-  const newDemon = {
-    id: Number(document.getElementById("dc-id").value),
-    name: document.getElementById("dc-name").value,
-    author: document.getElementById("dc-author").value,
-    creators: document.getElementById("dc-creators").value.split(",").map(s => s.trim()),
-    verifier: document.getElementById("dc-verifier").value,
-    verification: document.getElementById("dc-verification").value,
-    percentToQualify: Number(document.getElementById("dc-percent").value),
-    password: document.getElementById("dc-password").value,
-    records: []
-  };
+const verificationLink = document.getElementById("dc-verification").value.trim();
+const customThumb = document.getElementById("dc-thumbnail").value.trim();
+
+// Extract YouTube video ID for fallback thumbnail
+function extractYouTubeID(url) {
+  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?/]+)/);
+  return match ? match[1] : null;
+}
+
+const videoID = extractYouTubeID(verificationLink);
+const fallbackThumb = videoID
+  ? `https://i.ytimg.com/vi/${videoID}/hqdefault.jpg`
+  : "";
+
+// Build demon object
+const newDemon = {
+  id: Number(document.getElementById("dc-id").value),
+  name: document.getElementById("dc-name").value,
+  author: document.getElementById("dc-author").value),
+  creators: document.getElementById("dc-creators").value.split(",").map(s => s.trim()),
+  verifier: document.getElementById("dc-verifier").value,
+  verification: verificationLink,
+  percentToQualify: Number(document.getElementById("dc-percent").value),
+  password: document.getElementById("dc-password").value,
+  thumbnail: customThumb || fallbackThumb, // ⭐ AUTO‑FALLBACK
+  records: []
+};
 
   const placement = Number(document.getElementById("dc-placement").value);
 
@@ -800,6 +816,7 @@ function dc_generate() {
   document.getElementById("dc-updated-list").textContent =
     JSON.stringify(updatedListJson, null, 4);
 }
+
 
 
 
