@@ -753,22 +753,22 @@ loadDemonListMinus();
 loadModerators();
 
 function dc_generate() {
-  // Use the demonlist already loaded by your site
-  const existingList = window.demonList ? [...window.demonList] : [];
+// Use the demonlist already loaded by your site
+const existingList = window.demonList ? [...window.demonList] : [];
 
-  if (!existingList.length) {
-    alert("Your demonlist is not loaded yet.");
-    return;
-  }
+if (!existingList.length) {
+  alert("Your demonlist is not loaded yet.");
+  return;
+}
 
-  // Get the filename (required for list.json)
-  const filename = document.getElementById("dc-filename").value.trim();
-  if (!filename) {
-    alert("You must enter a filename.");
-    return;
-  }
+// Get the filename (required for list.json)
+const filename = document.getElementById("dc-filename").value.trim();
+if (!filename) {
+  alert("You must enter a filename.");
+  return;
+}
 
-  // Build the demon object
+// Build the demon object
 const verificationLink = document.getElementById("dc-verification").value.trim();
 const customThumb = document.getElementById("dc-thumbnail").value.trim();
 
@@ -785,37 +785,37 @@ const fallbackThumb = videoID
 
 // Build demon object
 const newDemon = {
-  id: Number(document.getElementById("dc-id").value,
+  id: Number(document.getElementById("dc-id").value),
   name: document.getElementById("dc-name").value,
-  author: document.getElementById("dc-author").value,
+  author: document.getElementById("dc-author").value, // ✅ FIXED
   creators: document.getElementById("dc-creators").value.split(",").map(s => s.trim()),
   verifier: document.getElementById("dc-verifier").value,
   verification: verificationLink,
-  percentToQualify: Number(document.getElementById("dc-percent").value,
+  percentToQualify: Number(document.getElementById("dc-percent").value),
   password: document.getElementById("dc-password").value,
   thumbnail: customThumb || fallbackThumb, // ⭐ AUTO‑FALLBACK
   records: []
 };
 
-  const placement = Number(document.getElementById("dc-placement").value;
+const placement = Number(document.getElementById("dc-placement").value);
 
-  // 1️⃣ Build updated demon object list (for preview only)
-  const updatedDemons = [...existingList];
-  updatedDemons.splice(placement - 1, 0, newDemon);
-  updatedDemons.forEach((d, i) => d.position = i + 1);
+// 1️⃣ Build updated demon object list (for preview only)
+const updatedDemons = [...existingList];
+updatedDemons.splice(placement - 1, 0, newDemon);
+updatedDemons.forEach((d, i) => d.position = i + 1);
 
-  // 2️⃣ Build updated list.json (filenames only)
-  const updatedListJson = [...window.originalListJson]; // original filenames
-  updatedListJson.splice(placement - 1, 0, filename);
+// 2️⃣ Build updated list.json (filenames only)
+const updatedListJson = [...window.originalListJson]; // original filenames
+updatedListJson.splice(placement - 1, 0, filename);
 
-  // Output demon JSON
-  document.getElementById("dc-new-demon").textContent =
-    JSON.stringify(newDemon, null, 4);
+// Output demon JSON
+document.getElementById("dc-new-demon").textContent =
+  JSON.stringify(newDemon, null, 4);
 
-  // Output updated list.json
-  document.getElementById("dc-updated-list").textContent =
-    JSON.stringify(updatedListJson, null, 4);
-}
+// Output updated list.json
+document.getElementById("dc-updated-list").textContent =
+  JSON.stringify(updatedListJson, null, 4);
+
 
 
 
